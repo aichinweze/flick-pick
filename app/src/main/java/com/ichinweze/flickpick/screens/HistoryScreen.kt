@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.screens.utils.BottomNavigationItem
+import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.HISTORY_SCREEN

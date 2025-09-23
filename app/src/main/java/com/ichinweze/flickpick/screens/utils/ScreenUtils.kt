@@ -13,11 +13,3 @@ object ScreenUtils {
     const val HISTORY_SCREEN = "HISTORY_SCREEN"
 
 }
-
-data class BottomNavigationItem(
-    val title: String,
-    val navigationScreen: String,
-    val selectedIcon: ImageVector,
-    val unselectedIcon: ImageVector,
-    val hasNews: Boolean
-)

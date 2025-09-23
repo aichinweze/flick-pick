@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.screens.utils.BottomNavigationItem
+import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.BASELINE_Q_SCREEN
 import com.ichinweze.flickpick.screens.utils.ScreenUtils.DASHBOARD_SCREEN

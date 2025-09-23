@@ -44,10 +44,10 @@ class MainActivity : ComponentActivity() {
 fun GreetingPreview() {
     val navController = rememberNavController()
     //AppNavigation()
-    DashboardScreen(navController)
+    //DashboardScreen(navController)
     //AccountInfoScreen(navController)
     //HistoryScreen(navController)
-    //BaselineQuestionScreen(navController)
+    BaselineQuestionScreen(navController)
     //RecommendQuestionScreen(navController)
 }
 
@@ -56,6 +56,9 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     // TODO: Start Destination to dashboard screen if logged in as user
+
+    // View Models
+
 
     NavHost(navController = navController, startDestination = LOGIN_SCREEN) {
         composable(LOGIN_SCREEN) {
