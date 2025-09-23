@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">FlickPick</string>
+    <string name="arrow_back">Arrow Back</string>
+    <string name="login_welcome">Welcome!</string>
+    <string name="login_username_hint">Username</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_sign_in">Sign In</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="account_nav_item">Account</string>
+    <string name="history_nav_item">History</string>
+    <string name="home_nav_item">Home</string>
+    <string name="dashboard_to_baseline">Complete Baseline Questionnaire</string>
+    <string name="dashboard_to_recommend">Find a Movie!</string>
+    <string name="account_info">Account Information</string>
+    <string name="history">History</string>
+    <string name="baseline_q">Baseline Questions</string>
+    <string name="flick_pick">Flick Pick</string>
 </resources>
