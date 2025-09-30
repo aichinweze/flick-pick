@@ -52,10 +52,13 @@ class CsvRepositoryImpl(val context: Context) : CsvRepository {
 
     override suspend fun getGenreDataFromCsv(fileName: String): List<GenreData> =
         withContext(Dispatchers.IO) {
-            val rawCsvLines = mutableListOf<String>()
+            val rawCsvLines = mutableListOf<List<String>>()
             try {
                 context.assets.open(fileName).bufferedReader().useLines { lines ->
-                    lines.forEach { line -> rawCsvLines.add(line) }
+                    lines.forEach { line ->
+                        val splitLine = line.split(",").map { it -> it.trim() }
+                        rawCsvLines.add(splitLine)
+                    }
                 }
             } catch (e: IOException) {
                 e.printStackTrace()

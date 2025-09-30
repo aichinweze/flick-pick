@@ -26,12 +26,12 @@ class CsvRepositoryTest {
 
         assert(baselineQuestionsData.isNotEmpty()) { "CSV file is empty" }
         assert(baselineQuestionsData.size == 2) { "Unexpected count of baseline questions" }
-        assert(firstBaselineQuestion.index == 1) { "Unexpected indexing of baseline questions" }
+        assert(firstBaselineQuestion.index == 0) { "Unexpected indexing of baseline questions" }
         assert(firstBaselineQuestion.question == "Pick your top 3 favourite movie genres") {
             "Unexpected question presented by first row of CSV"
         }
         assert(firstBaselineQuestion.isOptional == false) { "Baseline Question should not be optional" }
-        assert(secondBaselineQuestion.index == 2) { "Unexpected indexing of baseline questions" }
+        assert(secondBaselineQuestion.index == 1) { "Unexpected indexing of baseline questions" }
     }
 
     @Test
@@ -43,6 +43,9 @@ class CsvRepositoryTest {
         val expectedGenres = listOf<String>("Action", "Adventure", "Comedy", "Drama", "Fantasy")
 
         assert(genreData.size == 5) { "Incorrect amount of genres read from CSV" }
+        assert(genreData.filter{ genre -> genre.index == 1}.map{ it -> it.genre}.first() == "Adventure") {
+            "Unexpected genre at specified index"
+        }
         assert(genreData.map { data -> data.genre }.intersect(expectedGenres).size == 5) {
             "Unexpected number of movie genres are present"
         }

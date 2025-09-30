@@ -1,4 +1,4 @@
-industry_name, country
-na,UK
-Hollywood,USA
-K-Drama,South Korea
+index,industry_name, country
+0,na,UK
+1,Hollywood,USA
+2,K-Drama,South Korea
