@@ -15,4 +15,11 @@
     <string name="history">History</string>
     <string name="baseline_q">Baseline Questions</string>
     <string name="flick_pick">Flick Pick</string>
+    <string name="question">Question</string>
+    <string name="done">Done</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="select_3">(Select up to 3)</string>
+    <string name="toast_already_3">You have already selected 3 options!</string>
+    <string name="toast_selected_0">You have not selected any options!</string>
 </resources>
