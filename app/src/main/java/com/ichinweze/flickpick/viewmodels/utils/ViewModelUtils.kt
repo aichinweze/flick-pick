@@ -8,7 +8,6 @@ object ViewModelUtils {
         var isChecked: Boolean = false
     )
 
-    data class ChecklistResponse(
-        val responses: List<Int>
-    )
+    data class ChecklistResponse(val responses: List<Int>)
+
 }
