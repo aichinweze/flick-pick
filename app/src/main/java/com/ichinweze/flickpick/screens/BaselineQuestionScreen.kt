@@ -5,9 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -34,7 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
-import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.screens.utils.QuestionWithIndexAndContent
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,18 +80,6 @@ fun BaselineQuestionScreen(
             )
         },
         content = { paddingValues ->
-            if (screenState.value == SCREEN_UNINITIALISED) {
-                Spacer(modifier = Modifier.height(100.dp))
-
-                Text(
-                    // TODO: Formalise
-                    text = "Loading screen",
-                    fontSize = 30.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(100.dp)
-                )
-            }
-
             if (screenState.value == SCREEN_INITIALISED) {
                 Column(
                     modifier = Modifier
@@ -101,27 +87,19 @@ fun BaselineQuestionScreen(
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.Start
                 ) {
-                    Text(
-                        text = "${stringResource(R.string.question)} ${currQuestionIdx.value + 1}",
-                        fontSize = 40.sp,
-                        textAlign = TextAlign.Start,
+                    Column(
                         modifier = Modifier
-                            .padding(all = 5.dp)
-                            .weight(1f)
-                    )
+                            .weight(1.5f)
+                            .padding(start = 10.dp)
+                    ) {
+                        QuestionWithIndexAndContent(
+                            questionIndex = currQuestionIdx.value,
+                            questionContent = currQuestionStr.value,
+                            selectOption = stringResource(R.string.select_3)
+                        )
+                    }
 
-                    Text(
-                        text = "${currQuestionStr.value}\n${stringResource(R.string.select_3)}" ,
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Start,
-                        modifier = Modifier
-                            .padding(all = 5.dp)
-                            .weight(0.7f)
-                    )
-
-                    Spacer(modifier = Modifier.weight(0.5f))
-
-                    LazyColumn(modifier = Modifier.weight(5f)) {
+                    LazyColumn(modifier = Modifier.weight(8f)) {
                         items(checklistOptions.value.size) { index ->
                             val itemObject = checklistOptions.value[index]
 
@@ -157,10 +135,10 @@ fun BaselineQuestionScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(5.dp))
-
                     Row(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(2f)
+                            .padding(all = 10.dp),
                         verticalAlignment = Alignment.Top,
                         horizontalArrangement = Arrangement.Center
                     ) {

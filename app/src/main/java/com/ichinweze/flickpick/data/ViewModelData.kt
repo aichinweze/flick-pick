@@ -20,14 +20,7 @@ object ViewModelData {
         val index: Int,
         val decadeLb: String,
         val decadeUb: String
-    ) {
-        /*val decadeLeft = if (decadeLb == "_") "<" else decadeLb
-        val connector =
-            if (decadeLb == "_") " "
-            else if (decadeUb == "_") "+"
-            else "-"
-        val decadeRight = if (decadeUb == "_") "" else decadeUb*/
-    }
+    )
 
     data class MovieQualityData(
         val index: Int,

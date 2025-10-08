@@ -15,6 +15,10 @@ object RepositoryUtils {
     const val BASELINE_QUESTIONS_CSV = "baseline/baseline-questions.csv"
     const val GENRE_LIST_CSV = "genre-list.csv"
     const val MOVIE_REGION_CSV = "movie-region.csv"
+    const val RECOMMEND_QUESTIONS_CSV = "recommend/recommend-questions.csv"
+    const val MOVIE_QUALITY_CSV = "recommend/movie-quality.csv"
+    const val MOVIE_RUNTIME_CSV = "recommend/movie-runtime.csv"
+    const val RELEASE_DECADE_CSV = "recommend/release-decade.csv"
 
     const val OPTION_YES = "yes"
 
