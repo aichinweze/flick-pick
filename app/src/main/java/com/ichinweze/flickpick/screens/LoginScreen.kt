@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.DASHBOARD_SCREEN
+import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 
 @Composable
 fun LoginScreen(navController: NavController) {

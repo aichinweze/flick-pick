@@ -3,6 +3,12 @@ package com.ichinweze.flickpick.repositories
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.BASELINE_QUESTIONS_CSV
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.MOVIE_REGION_CSV
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToGenreData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieRegionData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToQuestionData
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +25,9 @@ class CsvRepositoryTest {
     fun testReadBaselineQuestionsFromAssets() = runTest {
         val fileName = "baseline/baseline-questions-clean.csv"
 
-        val baselineQuestionsData = csvRepository.getBaselineDataFromCsv(fileName)
+        val baselineQuestionsData = csvRepository
+            .getCsvLines(fileName, false)
+            .map { mapRawLineToQuestionData(it) }
 
         val firstBaselineQuestion = baselineQuestionsData.first()
         val secondBaselineQuestion = baselineQuestionsData.last()
@@ -36,9 +44,11 @@ class CsvRepositoryTest {
 
     @Test
     fun testReadGenreListFromAssets() = runTest {
-        val fileName = "genre/genre-list-clean.csv"
+        val fileName = "genre-list-clean.csv"
 
-        val genreData = csvRepository.getGenreDataFromCsv(fileName)
+        val genreData = csvRepository
+            .getCsvLines(fileName, false)
+            .map { mapRawLineToGenreData(it) }
 
         val expectedGenres = listOf<String>("Action", "Adventure", "Comedy", "Drama", "Fantasy")
 
@@ -53,9 +63,11 @@ class CsvRepositoryTest {
 
     @Test
     fun testReadMovieRegionFromAssets() = runTest {
-        val fileName = "movieRegion/movie-region-clean.csv"
+        val fileName = "movie-region-clean.csv"
 
-        val movieRegionData = csvRepository.getMovieRegionDataFromCsv(fileName)
+        val movieRegionData = csvRepository
+            .getCsvLines(fileName, false)
+            .map{ mapRawLineToMovieRegionData(it) }
 
         val expectedCountries = listOf<String>("UK", "USA", "South Korea")
         val expectedIndustryNames = listOf<String>("Hollywood", "K-Drama")

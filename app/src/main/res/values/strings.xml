@@ -22,4 +22,10 @@
     <string name="select_3">(Select up to 3)</string>
     <string name="toast_already_3">You have already selected 3 options!</string>
     <string name="toast_selected_0">You have not selected any options!</string>
+    <string name="search_result_description">Recommendation search result</string>
+    <string name="movie_title">Title:</string>
+    <string name="movie_release_date">Release Date:</string>
+    <string name="movie_rating">Rating:</string>
+    <string name="movie_selection">Select Movie</string>
+    <string name="search_no_results">No movies match this search criteria…</string>
 </resources>

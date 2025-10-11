@@ -22,13 +22,14 @@ import com.ichinweze.flickpick.screens.DashboardScreen
 import com.ichinweze.flickpick.screens.HistoryScreen
 import com.ichinweze.flickpick.screens.LoginScreen
 import com.ichinweze.flickpick.screens.RecommendQuestionScreen
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.ACCOUNT_INFO_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.BASELINE_Q_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.DASHBOARD_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.HISTORY_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.LOGIN_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.RECOMMEND_Q_SCREEN
+import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
+import com.ichinweze.flickpick.screens.utils.BASELINE_Q_SCREEN
+import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
+import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
+import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
+import com.ichinweze.flickpick.viewmodels.RecommendViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,11 +69,18 @@ fun AppNavigation() {
     val baselineVMCreationExtras = MutableCreationExtras().apply {
         set(BaselineViewModel.CSV_REPOSITORY_KEY, csvRepository)
     }
+    val recommendVMCreationExtras = MutableCreationExtras().apply {
+        set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
+    }
 
     // View Models
     val baselineViewModel: BaselineViewModel = viewModel(
         factory = BaselineViewModel.Factory,
         extras = baselineVMCreationExtras
+    )
+    val recommendViewModel: RecommendViewModel = viewModel(
+        factory = RecommendViewModel.Factory,
+        extras = recommendVMCreationExtras
     )
 
     NavHost(navController = navController, startDestination = LOGIN_SCREEN) {
@@ -92,7 +100,7 @@ fun AppNavigation() {
             BaselineQuestionScreen(navController, baselineViewModel, context)
         }
         composable(route = RECOMMEND_Q_SCREEN) {
-            RecommendQuestionScreen(navController)
+            RecommendQuestionScreen(navController, recommendViewModel, context)
         }
     }
 }

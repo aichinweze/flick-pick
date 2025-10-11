@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.ichinweze.flickpick.data.ViewModelData.BaselineQuestionData
-import com.ichinweze.flickpick.data.ViewModelData.GenreData
-import com.ichinweze.flickpick.data.ViewModelData.MovieRegionData
+import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
@@ -17,8 +15,13 @@ import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.BASELINE_QUESTIONS_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.MOVIE_REGION_CSV
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToGenreData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieRegionData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToQuestionData
 import com.ichinweze.flickpick.viewmodels.utils.ViewModelUtils.ChecklistItem
 import com.ichinweze.flickpick.viewmodels.utils.ViewModelUtils.ChecklistResponse
+import com.ichinweze.flickpick.viewmodels.utils.ViewModelUtils.convertGenreToChecklistItem
+import com.ichinweze.flickpick.viewmodels.utils.ViewModelUtils.convertMovieRegionToChecklistItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +33,7 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
 
-    private val questionList = mutableListOf<BaselineQuestionData>()
+    private val questionList = mutableListOf<QuestionData>()
 
     private val genreChecklistItems = mutableListOf<ChecklistItem>()
     private val movieRegionChecklistItems = mutableListOf<ChecklistItem>()
@@ -41,17 +44,14 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
 
     private val _checklistOptions: MutableStateFlow<List<ChecklistItem>> = MutableStateFlow(listOf())
     val checklistOptions = _checklistOptions.asStateFlow()
-            
+
     private val _currentQuestionIndex: MutableStateFlow<Int> = MutableStateFlow(0)
     val currentQuestionIndex = _currentQuestionIndex.asStateFlow()
 
     private val _currentQuestion: MutableStateFlow<String> = MutableStateFlow("")
     val currentQuestion = _currentQuestion.asStateFlow()
 
-    private val _currentQuestionIsOptional: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val currentQuestionIsOptional = _currentQuestionIsOptional.asStateFlow()
-
-    // Read questions read from csv
+    // Read data from csv files and initialise parameters
     fun initialiseScreen() {
         viewModelScope.launch(Dispatchers.IO) {
             if (_screenState.value == SCREEN_UNINITIALISED) {
@@ -59,24 +59,24 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
                 updateScreenState(SCREEN_INITIALISING)
 
                 val listOfQuestions = csvRepository
-                    .getBaselineDataFromCsv(BASELINE_QUESTIONS_CSV)
-                    .distinct()
+                    .getCsvLines(BASELINE_QUESTIONS_CSV, false)
+                    .map { mapRawLineToQuestionData(it) }
 
                 questionList.addAll(listOfQuestions)
                 println("BaselineViewModel: initialiseScreen: list of questions assigned to ViewModel: $questionList")
 
                 val genres = csvRepository
-                    .getGenreDataFromCsv(GENRE_LIST_CSV)
-                    .distinct()
-                val genreItems = genres.map { genre -> convertGenreToChecklistItem(genre) }
+                    .getCsvLines(GENRE_LIST_CSV, false)
+                    .map { mapRawLineToGenreData(it) }
+                val genreItems = genres.map { convertGenreToChecklistItem(it) }
 
                 genreChecklistItems.addAll(genreItems)
                 println("BaselineViewModel: initialiseScreen: genre checklist assigned to ViewModel: $genreChecklistItems")
 
                 val movieRegions = csvRepository
-                    .getMovieRegionDataFromCsv(MOVIE_REGION_CSV)
-                    .distinct()
-                val movieRegionItems = movieRegions.map { region -> convertMovieRegionToChecklistItem(region) }
+                    .getCsvLines(MOVIE_REGION_CSV, false)
+                    .map{ mapRawLineToMovieRegionData(it) }
+                val movieRegionItems = movieRegions.map { convertMovieRegionToChecklistItem(it) }
 
                 // TODO: Get any existing information from database when available
 
@@ -101,28 +101,6 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
     // Getters
     fun getNumberOfQuestions(): Int {
         return numberOfQuestions.intValue
-    }
-
-    fun makeMovieRegionOption(movieRegionData: MovieRegionData): String {
-        val bracketedSuffix = 
-            if (movieRegionData.industryName != "") "(${movieRegionData.industryName})"
-            else ""
-        
-        return "${movieRegionData.country} $bracketedSuffix".trim()
-    }
-
-    fun convertGenreToChecklistItem(genreData: GenreData): ChecklistItem {
-        return ChecklistItem(
-            index = genreData.index,
-            checklistItem = genreData.genre
-        )
-    }
-
-    fun convertMovieRegionToChecklistItem(movieRegionData: MovieRegionData): ChecklistItem {
-        return ChecklistItem(
-            index = movieRegionData.index,
-            checklistItem = makeMovieRegionOption(movieRegionData)
-        )
     }
 
     fun updateCurrentQuestion(currQIdx: Int) {
@@ -200,10 +178,6 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
         val responses = ChecklistResponse(responses = checklistItems.map { item -> item.index })
 
         checklistResponseMap.put(currQIdx, responses)
-    }
-
-    fun getResponseMap(): MutableSet<MutableMap.MutableEntry<Int, ChecklistResponse>> {
-        return checklistResponseMap.entries
     }
 
     fun updateOptionStateAtIndex(index: Int, state: Boolean) {

@@ -39,11 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.ACCOUNT_INFO_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.BASELINE_Q_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.DASHBOARD_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.HISTORY_SCREEN
-import com.ichinweze.flickpick.screens.utils.ScreenUtils.RECOMMEND_Q_SCREEN
+import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
+import com.ichinweze.flickpick.screens.utils.BASELINE_Q_SCREEN
+import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
+import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
