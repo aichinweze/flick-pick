@@ -1,14 +1,13 @@
 package com.ichinweze.flickpick.repositories
 
-import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.GenreData
 import com.ichinweze.flickpick.data.ViewModelData.MovieQualityData
-import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToQuestionData
+import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToGenreData
-import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieRegionData
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieQuality
-import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieRuntime
-import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToReleaseDecade
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToMovieRegionData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToQuestionData
+import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.mapRawLineToTimeBoundData
 import org.junit.Test
 
 class RepositoryUtilsTest {
@@ -83,18 +82,18 @@ class RepositoryUtilsTest {
     }
 
     @Test
-    fun testMapRawLineToMovieRuntime() {
+    fun testMapRawLineToTimeBoundData() {
         val runtime1 = "0,_,60"
         val runtime2 = "1,60,75"
         val runtime3 = "2,75,_"
 
         val rawRuntimes = listOf<String>(runtime1, runtime2, runtime3)
-        val runtimeList = rawRuntimes.map { mapRawLineToMovieRuntime(it) }
+        val runtimeList = rawRuntimes.map { mapRawLineToTimeBoundData(it) }
 
         assert(runtimeList.size == 3) { "Unexpected number of runtimes" }
-        assert(runtimeList.first().runtimeLb == "_")
-        assert(runtimeList.first().runtimeUb == "60")
-        assert(runtimeList.last().runtimeUb == "_")
+        assert(runtimeList.first().timeBoundLb == "_")
+        assert(runtimeList.first().timeBoundUb == "60")
+        assert(runtimeList.last().timeBoundUb == "_")
     }
 
     @Test
@@ -104,11 +103,11 @@ class RepositoryUtilsTest {
         val decade3 = "2,2020,_"
 
         val rawDecades = listOf<String>(decade1, decade2, decade3)
-        val decadeList = rawDecades.map { mapRawLineToReleaseDecade(it) }
+        val decadeList = rawDecades.map { mapRawLineToTimeBoundData(it) }
 
         assert(decadeList.size == 3) { "Unexpected number of runtimes" }
-        assert(decadeList.first().decadeLb == "_")
-        assert(decadeList.first().decadeUb == "1950")
-        assert(decadeList.last().decadeUb == "_")
+        assert(decadeList.first().timeBoundLb == "_")
+        assert(decadeList.first().timeBoundUb == "1950")
+        assert(decadeList.last().timeBoundUb == "_")
     }
 }

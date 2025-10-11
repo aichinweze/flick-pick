@@ -1,9 +1,9 @@
 index,industry_name, country
-0,na,UK
-1,Hollywood,USA
-2,K-Drama,South Korea
-3,Bollywood,India
-4,na,France
-5,na,Germany
-6,na,Italy
-7,Nollywood,Nigeria
+0,British,GB
+1,Hollywood,US
+2,K-Drama,KR
+3,Bollywood,IN
+4,France,FR
+5,Germany,DE
+6,Italy,IT
+7,Nollywood,NG

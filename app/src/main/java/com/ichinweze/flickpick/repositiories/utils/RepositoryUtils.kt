@@ -1,11 +1,10 @@
 package com.ichinweze.flickpick.repositiories.utils
 
-import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.GenreData
 import com.ichinweze.flickpick.data.ViewModelData.MovieQualityData
 import com.ichinweze.flickpick.data.ViewModelData.MovieRegionData
-import com.ichinweze.flickpick.data.ViewModelData.MovieRuntimeData
-import com.ichinweze.flickpick.data.ViewModelData.ReleaseDecadeData
+import com.ichinweze.flickpick.data.ViewModelData.QuestionData
+import com.ichinweze.flickpick.data.ViewModelData.TimeBoundData
 import kotlin.collections.first
 import kotlin.text.split
 import kotlin.text.toInt
@@ -66,23 +65,13 @@ object RepositoryUtils {
         return MovieQualityData(index = index, quality = quality)
     }
 
-    fun mapRawLineToMovieRuntime(rawCsvLine: String): MovieRuntimeData {
+    fun mapRawLineToTimeBoundData(rawCsvLine: String): TimeBoundData {
         val splitLine = rawCsvLine.split(",").map { it -> it.trim() }
 
         val index = splitLine.first().toInt()
-        val runtimeLb = splitLine[1]
-        val runtimeUb = splitLine.last()
+        val timeBoundLb = splitLine[1]
+        val timeBoundUb = splitLine.last()
 
-        return MovieRuntimeData(index = index, runtimeLb = runtimeLb, runtimeUb = runtimeUb)
-    }
-
-    fun mapRawLineToReleaseDecade(rawCsvLine: String): ReleaseDecadeData {
-        val splitLine = rawCsvLine.split(",").map { it -> it.trim() }
-
-        val index = splitLine.first().toInt()
-        val decadeLb = splitLine[1]
-        val decadeUb = splitLine.last()
-
-        return ReleaseDecadeData(index = index, decadeLb = decadeLb, decadeUb = decadeUb)
+        return TimeBoundData(index = index, timeBoundLb = timeBoundLb, timeBoundUb = timeBoundUb)
     }
 }
