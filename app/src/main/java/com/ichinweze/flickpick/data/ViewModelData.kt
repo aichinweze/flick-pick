@@ -9,6 +9,20 @@ object ViewModelData {
     const val SCREEN_LOADED_RESULTS = "screen_loaded_results"
     const val SCREEN_REVIEW_SELECTION = "screen_review_selection"
     const val SCREEN_NO_RESULTS = "screen_no_results"
+    const val SCREEN_LOGIN = "screen_login"
+    const val SCREEN_REGISTER = "screen_register"
+    const val SCREEN_REGISTER_CHECKING_EMAIL = "screen_register_checking_email"
+    const val SCREEN_REGISTER_CHECK_EMAIL_DONE = "screen_register_check_email_done"
+    const val SCREEN_REGISTER_COMPLETE = "screen_register_complete"
+
+    const val PASSWORD_FIELD = "password_field"
+    const val CONFIRM_PASSWORD_FIELD = "confirm_password_field"
+
+    const val VALID_ERROR_EMPTY_FIELDS = "There are empty fields in your registration. Please fill them."
+    const val VALID_ERROR_PASSWORD_MISMATCH = "Passwords do not match."
+    const val VALID_ERROR_USERNAME_EXISTS = "Username is already present in the system"
+    const val VALID_ERROR_INVALID_EMAIL = "Please provide a valid email"
+    const val CHECKS_PASSED = "checks_passed"
 
     const val BASE_URL = "https://api.themoviedb.org/3/"
 

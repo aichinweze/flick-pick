@@ -28,4 +28,12 @@
     <string name="movie_rating">Rating:</string>
     <string name="movie_selection">Select Movie</string>
     <string name="search_no_results">No movies match this search criteria…</string>
+    <string name="login_existing_user">Already a user?</string>
+    <string name="login_new_user">New user?</string>
+    <string name="login_register">Register</string>
+    <string name="register_give_name">Please provide a name</string>
+    <string name="register_give_email">Please provide an email</string>
+    <string name="register_confirm_password">Please confirm password</string>
+    <string name="toggle_password">Toggle password visibility</string>
+    <string name="first_signin">Registration complete… Please sign in!</string>
 </resources>
