@@ -6,10 +6,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavController
 import com.ichinweze.flickpick.data.ScreenData.LoginDetails
 import com.ichinweze.flickpick.data.ViewModelData.CHECKS_PASSED
 import com.ichinweze.flickpick.data.ViewModelData.PASSWORD_FIELD
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_CHECKING_CREDENTIALS
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_CHECK_DONE
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_SUCCESS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER_CHECK_EMAIL_DONE
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER_COMPLETE
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
@@ -17,6 +21,7 @@ import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_EMPTY_FIELDS
 import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_INVALID_EMAIL
 import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_PASSWORD_MISMATCH
 import com.ichinweze.flickpick.repositiories.LoginRepository
+import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +53,9 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
 
     private val _emailCheckResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val emailCheckResponse = _emailCheckResponse.asStateFlow()
+
+    private val _credentialCheckResponse: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val credentialCheckResponse = _credentialCheckResponse.asStateFlow()
 
     private var loginDetails: LoginDetails? = null
 
@@ -89,8 +97,12 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
         _confirmPassword.update { state -> input }
     }
 
-    fun assignEmailCheckResponseState(bool: Boolean) {
+    fun assignEmailCheckResponse(bool: Boolean) {
         _emailCheckResponse.update { state -> bool }
+    }
+
+    fun assignCredentialCheckResponse(bool: Boolean) {
+        _credentialCheckResponse.update { state -> bool }
     }
 
     fun toggleShowPasswordState(passwordType: String) {
@@ -116,7 +128,7 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
             val usernameExists = loginRepository.doesEmailExist(_email.value.trim())
 
             updateScreenState(SCREEN_REGISTER_CHECK_EMAIL_DONE)
-            assignEmailCheckResponseState(usernameExists)
+            assignEmailCheckResponse(usernameExists)
         }
     }
 
@@ -150,6 +162,23 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
             loginRepository.createUser(newLoginDetails)
 
             updateScreenState(SCREEN_REGISTER_COMPLETE)
+        }
+    }
+
+    fun checkLoginDetails() {
+        updateScreenState(SCREEN_LOGIN_CHECKING_CREDENTIALS)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val checkResponse = loginRepository.findUser(_email.value, _password.value)
+            println("LoginViewModel: checkLoginDetails: checkResponse = $checkResponse")
+
+            assignCredentialCheckResponse(checkResponse)
+
+            if (checkResponse) {
+                updateScreenState(SCREEN_LOGIN_SUCCESS)
+            } else {
+                updateScreenState(SCREEN_LOGIN_CHECK_DONE)
+            }
         }
     }
 

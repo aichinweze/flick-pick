@@ -21,6 +21,10 @@ class LoginRepository(context: Context) {
         return loginDao.checkForEmail(email) != null
     }
 
+    suspend fun findUser(email: String, password: String): Boolean {
+        return loginDao.getUserCredentials(email, password) != null
+    }
+
     suspend fun createUser(loginDetails: LoginDetails): String {
         val newLogin = loginDetails.toLocal()
         loginDao.upsert(newLogin)

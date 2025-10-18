@@ -17,6 +17,9 @@ interface LoginDao {
     @Query("SELECT * FROM login_details WHERE activeUser = 1")
     suspend fun findActiveUser(): List<LocalLoginDetails>
 
+    @Query("SELECT * FROM login_details WHERE email = :email AND password = :password LIMIT 1")
+    suspend fun getUserCredentials(email: String, password: String): LocalLoginDetails?
+
     @Query("SELECT * FROM login_details WHERE email = :email LIMIT 1")
     suspend fun checkForEmail(email: String): LocalLoginDetails?
 }

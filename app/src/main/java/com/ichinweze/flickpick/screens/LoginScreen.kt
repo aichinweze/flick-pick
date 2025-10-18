@@ -34,11 +34,15 @@ import com.ichinweze.flickpick.data.ViewModelData.CONFIRM_PASSWORD_FIELD
 import com.ichinweze.flickpick.data.ViewModelData.PASSWORD_FIELD
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_CHECKING_CREDENTIALS
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_CHECK_DONE
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_SUCCESS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER_CHECKING_EMAIL
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER_CHECK_EMAIL_DONE
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REGISTER_COMPLETE
-import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_USERNAME_EXISTS
+import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_EMAIL_EXISTS
+import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_NO_USER
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.TextAndButtonRow
 import com.ichinweze.flickpick.screens.utils.TextFieldWithUpdatingState
@@ -68,7 +72,9 @@ fun LoginScreen(
     val textFieldModifier = Modifier.width(450.dp)
 
     val emailExists = loginViewModel.emailCheckResponse.collectAsState()
+    val userExists = loginViewModel.credentialCheckResponse.collectAsState()
 
+    // TODO: Add check for whether user is logged in
     loginViewModel.initialiseScreen()
 
     Surface {
@@ -106,7 +112,21 @@ fun LoginScreen(
             }
 
             // TODO: Options for forgot password/remember me
-            if (screenState.value == SCREEN_LOGIN) {
+            if (screenState.value.contains(SCREEN_LOGIN)) {
+                if (screenState.value == SCREEN_LOGIN_SUCCESS && userExists.value) {
+                    loginViewModel.assignCredentialCheckResponse(false)
+                    println("LoginScreen: User exists. Logging in...")
+                    navController.navigate(DASHBOARD_SCREEN)
+                }
+
+                if (screenState.value == SCREEN_LOGIN_CHECK_DONE) {
+                    Toast
+                        .makeText(context, VALID_ERROR_NO_USER, Toast.LENGTH_SHORT)
+                        .show()
+
+                    loginViewModel.updateScreenState(SCREEN_LOGIN)
+                }
+
                 Text(
                     text = stringResource(R.string.login_sign_in),
                     color = Color.Red,
@@ -131,7 +151,11 @@ fun LoginScreen(
                     state = password,
                     onValueChangeFn = loginViewModel::assignPassword,
                     textFieldHint = passwordHint,
-                    modifier = textFieldModifier
+                    modifier = textFieldModifier,
+                    visualTransformation = PasswordVisualTransformation(),
+                    showIconState = showPasswordState,
+                    toggleIconStateParam = PASSWORD_FIELD,
+                    toggleIconStateFn = loginViewModel::toggleShowPasswordState
                 )
 
                 Spacer(modifier = Modifier.height(15.dp))
@@ -141,7 +165,10 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(
-                        onClick = { loginViewModel.updateScreenState(SCREEN_INITIALISED) },
+                        onClick = {
+                            loginViewModel.updateScreenState(SCREEN_INITIALISED)
+                            loginViewModel.clearInputFields()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
                     ) {
                         Text(
@@ -153,9 +180,16 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            // TODO: Add check for whether user is logged in
-                            // TODO: Input checks
-                            navController.navigate(DASHBOARD_SCREEN)
+                            val checkResponse = loginViewModel.checkFieldsAreValid()
+
+                            if (checkResponse == CHECKS_PASSED) {
+                                loginViewModel.checkLoginDetails()
+                                loginViewModel.updateScreenState(SCREEN_LOGIN_CHECKING_CREDENTIALS)
+                            } else {
+                                Toast
+                                    .makeText(context, checkResponse, Toast.LENGTH_SHORT)
+                                    .show()
+                            }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
                     ) {
@@ -170,11 +204,11 @@ fun LoginScreen(
 
             if (screenState.value.contains(SCREEN_REGISTER)) {
                 if (screenState.value == SCREEN_REGISTER_CHECK_EMAIL_DONE) {
-                    loginViewModel.assignEmailCheckResponseState(false)
+                    loginViewModel.assignEmailCheckResponse(false)
 
                     if (emailExists.value) {
                         Toast
-                            .makeText(context, VALID_ERROR_USERNAME_EXISTS, Toast.LENGTH_SHORT)
+                            .makeText(context, VALID_ERROR_EMAIL_EXISTS, Toast.LENGTH_SHORT)
                             .show()
 
                         loginViewModel.updateScreenState(SCREEN_REGISTER)
@@ -253,7 +287,10 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(
-                        onClick = { loginViewModel.updateScreenState(SCREEN_INITIALISED) },
+                        onClick = {
+                            loginViewModel.updateScreenState(SCREEN_INITIALISED)
+                            loginViewModel.clearInputFields()
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
                     ) {
                         Text(
