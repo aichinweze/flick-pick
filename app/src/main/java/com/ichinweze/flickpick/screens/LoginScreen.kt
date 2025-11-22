@@ -180,7 +180,7 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            val checkResponse = loginViewModel.checkFieldsAreValid()
+                            val checkResponse = loginViewModel.checkLoginFieldsAreValid()
 
                             if (checkResponse == CHECKS_PASSED) {
                                 loginViewModel.checkLoginDetails()
@@ -303,7 +303,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (screenState.value == SCREEN_REGISTER) {
-                                val checkResponse = loginViewModel.checkFieldsAreValid()
+                                val checkResponse = loginViewModel.checkRegisterFieldsAreValid()
 
                                 if (checkResponse == CHECKS_PASSED) {
                                     loginViewModel.updateScreenState(SCREEN_REGISTER_CHECKING_EMAIL)

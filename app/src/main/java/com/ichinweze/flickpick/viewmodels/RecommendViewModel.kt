@@ -477,7 +477,6 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun resetScreen() {
-        println("Recommend View Model: Complete Response Map: $checklistResponseMap")
         updateScreenState(SCREEN_UNINITIALISED)
         emptySearchResults()
 

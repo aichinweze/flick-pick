@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
 import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.screens.AccountInfoScreen
@@ -67,10 +68,13 @@ fun AppNavigation() {
 
     val csvRepository: CsvRepositoryImpl = CsvRepositoryImpl(context)
     val loginRepository: LoginRepository = LoginRepository(context)
+    val baselineRepository: BaselineRepository = BaselineRepository(context)
 
     // Creation Extras for View Models
     val baselineVMCreationExtras = MutableCreationExtras().apply {
         set(BaselineViewModel.CSV_REPOSITORY_KEY, csvRepository)
+        set(BaselineViewModel.BASELINE_REPOSITORY_KEY, baselineRepository)
+        set(BaselineViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
     }
     val recommendVMCreationExtras = MutableCreationExtras().apply {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)

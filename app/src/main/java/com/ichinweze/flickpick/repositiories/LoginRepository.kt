@@ -4,6 +4,7 @@ import android.content.Context
 import com.ichinweze.flickpick.data.ScreenData.LoginDetails
 import com.ichinweze.flickpick.data.persistent.db.FlickPickDatabase
 import com.ichinweze.flickpick.data.persistent.db.local.toLocal
+import kotlin.math.log
 
 class LoginRepository(context: Context) {
 
@@ -12,13 +13,22 @@ class LoginRepository(context: Context) {
         .loginDao()
 
     suspend fun findActiveUser(): Boolean {
-        val activeUser = loginDao.findActiveUser().toList()
+        return loginDao.findActiveUser() != null
+    }
 
-        return activeUser.isNotEmpty()
+    suspend fun getActiveUserEmail(): String {
+        val activeUser = loginDao.findActiveUser()
+        return if (activeUser != null) activeUser.email else ""
     }
 
     suspend fun doesEmailExist(email: String): Boolean {
         return loginDao.checkForEmail(email) != null
+    }
+
+    suspend fun loginUser(email: String, password: String): Boolean {
+        return if (loginDao.getUserCredentials(email, password) != null) {
+            loginDao.loginUserWithCredentials(email, password) > 0
+        } else false
     }
 
     suspend fun findUser(email: String, password: String): Boolean {
