@@ -225,8 +225,6 @@ class BaselineViewModel(
         }
     }
 
-    // TODO: Commit responses to database - database to be added in later feature branch
-
     companion object {
         val CSV_REPOSITORY_KEY = object : CreationExtras.Key<CsvRepositoryImpl> {}
         val BASELINE_REPOSITORY_KEY = object : CreationExtras.Key<BaselineRepository> {}

@@ -17,7 +17,7 @@ fun LocalAccountDetails.toExternal() = AccountDetails(
     age = age
 )
 
-fun AccountDetails.toLocal(uid: String) = LocalAccountDetails(
+fun AccountDetails.toLocal(email: String) = LocalAccountDetails(
     name = name,
     email = email,
     age = age

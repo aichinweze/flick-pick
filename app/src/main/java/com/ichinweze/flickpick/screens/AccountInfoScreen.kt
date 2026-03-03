@@ -2,8 +2,12 @@ package com.ichinweze.flickpick.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Home
@@ -24,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
@@ -38,10 +44,11 @@ import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.viewmodels.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountInfoScreen(navController: NavController) {
+fun AccountInfoScreen(navController: NavController, accountViewModel: AccountViewModel) {
     // TODO: Move State into a ViewModel
     // TODO: Move common items to a Utils
 
@@ -73,6 +80,12 @@ fun AccountInfoScreen(navController: NavController) {
     val bottomNavItems = listOf(accountNavigationItem, homeNavigationItem, historyNavigationItem)
 
     val selectedState = remember { mutableIntStateOf(0) }
+
+    accountViewModel.initialiseScreen()
+
+    val accountName = accountViewModel.name.collectAsState()
+    val accountEmail = accountViewModel.email.collectAsState()
+    val accountAge = accountViewModel.age.collectAsState()
 
     Scaffold(
         topBar = {
@@ -140,11 +153,62 @@ fun AccountInfoScreen(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = "TBD: Account Information",
-                    fontSize = 40.sp,
-                    textAlign = TextAlign.Center
-                )
+                // Name
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Name",
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Left
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = accountName.value,
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.Right
+                    )
+                }
+
+                // Email
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                )  {
+                    Text(
+                        text = "Email",
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Left
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = accountEmail.value,
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.Right
+                    )
+                }
+
+                // Age
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                )  {
+                    Text(
+                        text = "Age",
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Left
+                    )
+
+                    Spacer(modifier = Modifier.width(10.dp))
+
+                    Text(
+                        text = if (accountAge.value != -1) accountAge.value.toString() else "N/A",
+                        fontSize = 22.sp,
+                        textAlign = TextAlign.Right
+                    )
+                }
             }
         }
     )
