@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +51,7 @@ import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOADED_RESULTS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOADING_RESULTS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_NO_RESULTS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REVIEW_SELECTION
+import com.ichinweze.flickpick.data.ViewModelData.emptyProcessedResult
 import com.ichinweze.flickpick.screens.utils.LabelAndContentTextRow
 import com.ichinweze.flickpick.screens.utils.QuestionWithIndexAndContent
 import com.ichinweze.flickpick.viewmodels.RecommendViewModel
@@ -76,7 +78,7 @@ fun RecommendQuestionScreen(
 
     val noSelectionsToast = stringResource(R.string.toast_selected_0)
 
-    recommendViewModel.initialiseScreen()
+    LaunchedEffect(Unit) { recommendViewModel.initialiseScreen() }
 
     Scaffold(
         topBar = {
@@ -274,7 +276,10 @@ fun RecommendQuestionScreen(
             }
 
             if (screenState.value == SCREEN_REVIEW_SELECTION) {
-                val resultToReview = movieToReview.value.first()
+                val resultOrNull = movieToReview.value.firstOrNull()
+                val resultToReview =
+                    if (resultOrNull != null) resultOrNull
+                    else emptyProcessedResult
 
                 val imagePath = resultToReview.posterPath
                 val imageUrl =

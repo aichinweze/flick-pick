@@ -67,4 +67,16 @@ object ViewModelData {
         val releaseDate: String,
         val overview: String
     )
+
+    val emptyProcessedResult = ProcessedResult(
+        id = 0,
+        genreIds = emptyList(),
+        title = "",
+        voteAverage = 0f,
+        voteCount = 0,
+        popularity = 0f,
+        posterPath = null,
+        releaseDate = "",
+        overview = ""
+    )
 }

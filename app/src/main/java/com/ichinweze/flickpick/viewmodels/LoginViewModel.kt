@@ -182,7 +182,6 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
 
             if (checkResponse) {
                 updateScreenState(SCREEN_LOGIN_SUCCESS)
-                loginRepository.
                 // TODO: Update active user flag to true
             } else {
                 updateScreenState(SCREEN_LOGIN_CHECK_DONE)
