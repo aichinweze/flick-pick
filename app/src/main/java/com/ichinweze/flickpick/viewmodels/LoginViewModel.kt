@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.navigation.NavController
 import com.ichinweze.flickpick.data.ScreenData.LoginDetails
 import com.ichinweze.flickpick.data.ViewModelData.CHECKS_PASSED
 import com.ichinweze.flickpick.data.ViewModelData.PASSWORD_FIELD
@@ -21,7 +20,6 @@ import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_EMPTY_FIELDS
 import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_INVALID_EMAIL
 import com.ichinweze.flickpick.data.ViewModelData.VALID_ERROR_PASSWORD_MISMATCH
 import com.ichinweze.flickpick.repositiories.LoginRepository
-import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -112,13 +110,21 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
         }
     }
 
-    fun checkFieldsAreValid(): String {
+    fun checkRegisterFieldsAreValid(): String {
         return if (_email.value.trim().isEmpty() || _name.value.trim().isEmpty() ||
             _password.value.trim().isEmpty() || _confirmPassword.value.trim().isEmpty()) {
             VALID_ERROR_EMPTY_FIELDS
         } else if (_password.value.trim() != _confirmPassword.value.trim()) {
             VALID_ERROR_PASSWORD_MISMATCH
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value).matches()) {
+            VALID_ERROR_INVALID_EMAIL
+        } else CHECKS_PASSED
+    }
+
+    fun checkLoginFieldsAreValid(): String {
+        return if (_email.value.trim().isEmpty() ||_password.value.trim().isEmpty()) {
+            VALID_ERROR_EMPTY_FIELDS
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value.trim()).matches()) {
             VALID_ERROR_INVALID_EMAIL
         } else CHECKS_PASSED
     }
@@ -169,13 +175,14 @@ class LoginViewModel(val loginRepository: LoginRepository): ViewModel() {
         updateScreenState(SCREEN_LOGIN_CHECKING_CREDENTIALS)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val checkResponse = loginRepository.findUser(_email.value, _password.value)
+            val checkResponse = loginRepository.loginUser(_email.value, _password.value)
             println("LoginViewModel: checkLoginDetails: checkResponse = $checkResponse")
 
             assignCredentialCheckResponse(checkResponse)
 
             if (checkResponse) {
                 updateScreenState(SCREEN_LOGIN_SUCCESS)
+                // TODO: Update active user flag to true
             } else {
                 updateScreenState(SCREEN_LOGIN_CHECK_DONE)
             }

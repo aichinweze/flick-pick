@@ -1,17 +1,21 @@
 package com.ichinweze.flickpick.viewmodels
 
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.ichinweze.flickpick.data.ScreenData.BaselineDetails
 import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
+import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.BASELINE_QUESTIONS_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.MOVIE_REGION_CSV
@@ -28,7 +32,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
+class BaselineViewModel(
+    val csvRepository: CsvRepositoryImpl,
+    val baselineRepository: BaselineRepository,
+    val loginRepository: LoginRepository
+) : ViewModel() {
 
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
@@ -41,6 +49,8 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
     private val numberOfQuestions = mutableIntStateOf(0)
 
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
+
+    private val userEmail = mutableStateOf("")
 
     private val _checklistOptions: MutableStateFlow<List<ChecklistItem>> = MutableStateFlow(listOf())
     val checklistOptions = _checklistOptions.asStateFlow()
@@ -78,7 +88,10 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
                     .map{ mapRawLineToMovieRegionData(it) }
                 val movieRegionItems = movieRegions.map { convertMovieRegionToChecklistItem(it) }
 
-                // TODO: Get any existing information from database when available
+                // TODO: Get active email/user ID
+
+                val activeUserEmail = loginRepository.getActiveUserEmail()
+                userEmail.value = activeUserEmail
 
                 movieRegionChecklistItems.addAll(movieRegionItems)
                 println("BaselineViewModel: initialiseScreen: movie region checklist assigned to ViewModel: $movieRegionChecklistItems")
@@ -120,6 +133,13 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
         _checklistOptions.update { state -> checklistOptions }
     }
 
+    fun setActiveUserEmail() {
+        viewModelScope.launch(Dispatchers.IO) {
+
+        }
+
+    }
+
     fun persistChecklistState(currQIdx: Int) {
         val checkedItems = _checklistOptions.value
             .filter { item -> item.isChecked }
@@ -151,6 +171,19 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
             updateChecklistOptions(nextIdx)
             updateCurrentQuestion(nextIdx)
             nextIdx
+        }
+    }
+
+    fun persistBaselineQuestions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            checklistResponseMap.forEach { (idx, response) ->
+                val baselineDetails = BaselineDetails(
+                    baselineQuestionIndex = idx,
+                    baselineResponses = response.responses
+                )
+
+                baselineRepository.upsertBaselineDetails(userEmail.value, baselineDetails)
+            }
         }
     }
 
@@ -192,17 +225,18 @@ class BaselineViewModel(val csvRepository: CsvRepositoryImpl) : ViewModel() {
         }
     }
 
-    // Store response to questions
-
-    // Commit responses to database - database to be added in later feature branch
-
     companion object {
         val CSV_REPOSITORY_KEY = object : CreationExtras.Key<CsvRepositoryImpl> {}
+        val BASELINE_REPOSITORY_KEY = object : CreationExtras.Key<BaselineRepository> {}
+        val LOGIN_REPOSITORY_KEY = object : CreationExtras.Key<LoginRepository> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val csvRepository = this[CSV_REPOSITORY_KEY] as CsvRepositoryImpl
-                BaselineViewModel(csvRepository)
+                val baselineRepository = this[BASELINE_REPOSITORY_KEY] as BaselineRepository
+                val loginRepository = this[LOGIN_REPOSITORY_KEY] as LoginRepository
+
+                BaselineViewModel(csvRepository, baselineRepository, loginRepository)
             }
         }
     }

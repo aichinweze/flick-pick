@@ -80,6 +80,12 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
     private val numberOfSearchPages: Int = 5
 
+    private val GENRE_QUESTION_INDEX: Int = 0
+    private val REGION_QUESTION_INDEX: Int = 1
+    private val decadeQuestionIndex: Int = 2
+    private val qualityQuestionIndex: Int = 3
+    private val RUNTIME_QUESTION_INDEX: Int = 4
+
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
     private val genreIdMap = mutableMapOf<String, Int>()
 
@@ -350,7 +356,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructRuntimeSearchParameters(): String {
-        val checklistResponse = checklistResponseMap.getValue(2).responses.first()
+        val checklistResponse = checklistResponseMap.getValue(decadeQuestionIndex).responses.first()
         val timeBoundValue = runtimeList.find { item -> item.index == checklistResponse }
 
         if (timeBoundValue != null) {
@@ -369,7 +375,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructQualitySearchParameters(): String {
-        val checklistResponse = checklistResponseMap.getValue(3).responses.first()
+        val checklistResponse = checklistResponseMap.getValue(qualityQuestionIndex).responses.first()
 
         return when(checklistResponse) {
             0       -> "&vote_average.gte=0&vote_average.lte=5"
@@ -477,7 +483,6 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun resetScreen() {
-        println("Recommend View Model: Complete Response Map: $checklistResponseMap")
         updateScreenState(SCREEN_UNINITIALISED)
         emptySearchResults()
 

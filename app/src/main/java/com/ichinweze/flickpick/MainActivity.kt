@@ -15,6 +15,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ichinweze.flickpick.repositiories.AccountRepository
+import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
 import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.screens.AccountInfoScreen
@@ -29,6 +31,7 @@ import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
 import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
+import com.ichinweze.flickpick.viewmodels.AccountViewModel
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
 import com.ichinweze.flickpick.viewmodels.LoginViewModel
 import com.ichinweze.flickpick.viewmodels.RecommendViewModel
@@ -67,16 +70,25 @@ fun AppNavigation() {
 
     val csvRepository: CsvRepositoryImpl = CsvRepositoryImpl(context)
     val loginRepository: LoginRepository = LoginRepository(context)
+    val baselineRepository: BaselineRepository = BaselineRepository(context)
+    val accountRepository: AccountRepository = AccountRepository(context)
 
     // Creation Extras for View Models
     val baselineVMCreationExtras = MutableCreationExtras().apply {
         set(BaselineViewModel.CSV_REPOSITORY_KEY, csvRepository)
+        set(BaselineViewModel.BASELINE_REPOSITORY_KEY, baselineRepository)
+        set(BaselineViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
     }
     val recommendVMCreationExtras = MutableCreationExtras().apply {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
     }
     val loginVMCreationExtras = MutableCreationExtras().apply {
         set(LoginViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
+    }
+
+    val accountVMCreationExtras = MutableCreationExtras().apply {
+        set(AccountViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
+        set(AccountViewModel.ACCOUNT_REPOSITORY_KEY, accountRepository)
     }
 
     // View Models
@@ -92,6 +104,11 @@ fun AppNavigation() {
         factory = LoginViewModel.Factory,
         extras = loginVMCreationExtras
     )
+    val accountViewModel: AccountViewModel = viewModel(
+        factory = AccountViewModel.Factory,
+        extras = accountVMCreationExtras
+    )
+
 
     NavHost(navController = navController, startDestination = LOGIN_SCREEN) {
         composable(LOGIN_SCREEN) {
@@ -101,7 +118,7 @@ fun AppNavigation() {
             DashboardScreen(navController)
         }
         composable(route = ACCOUNT_INFO_SCREEN) {
-            AccountInfoScreen(navController)
+            AccountInfoScreen(navController, accountViewModel)
         }
         composable(route = HISTORY_SCREEN) {
             HistoryScreen(navController)

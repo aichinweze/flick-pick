@@ -16,6 +16,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,7 +76,7 @@ fun LoginScreen(
     val userExists = loginViewModel.credentialCheckResponse.collectAsState()
 
     // TODO: Add check for whether user is logged in
-    loginViewModel.initialiseScreen()
+    LaunchedEffect(Unit) { loginViewModel.initialiseScreen() }
 
     Surface {
         Column(
@@ -180,7 +181,7 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            val checkResponse = loginViewModel.checkFieldsAreValid()
+                            val checkResponse = loginViewModel.checkLoginFieldsAreValid()
 
                             if (checkResponse == CHECKS_PASSED) {
                                 loginViewModel.checkLoginDetails()
@@ -303,7 +304,7 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (screenState.value == SCREEN_REGISTER) {
-                                val checkResponse = loginViewModel.checkFieldsAreValid()
+                                val checkResponse = loginViewModel.checkRegisterFieldsAreValid()
 
                                 if (checkResponse == CHECKS_PASSED) {
                                     loginViewModel.updateScreenState(SCREEN_REGISTER_CHECKING_EMAIL)

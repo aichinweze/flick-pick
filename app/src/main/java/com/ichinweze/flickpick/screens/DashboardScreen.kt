@@ -66,7 +66,7 @@ fun DashboardScreen(navController: NavController) {
         navigationScreen = HISTORY_SCREEN,
         selectedIcon = Icons.Filled.Info,
         unselectedIcon = Icons.Outlined.Info,
-        hasNews = true
+        hasNews = false
     )
 
     val homeNavigationItem = BottomNavigationItem(

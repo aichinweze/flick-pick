@@ -14,8 +14,11 @@ interface LoginDao {
     @Delete
     suspend fun deleteLoginDetails(loginDetails: LocalLoginDetails)
 
-    @Query("SELECT * FROM login_details WHERE activeUser = 1")
-    suspend fun findActiveUser(): List<LocalLoginDetails>
+    @Query("SELECT * FROM login_details WHERE activeUser = 1 LIMIT 1")
+    suspend fun findActiveUser(): LocalLoginDetails?
+
+    @Query("UPDATE login_details SET activeUser = 1 WHERE email = :email AND password = :password")
+    suspend fun loginUserWithCredentials(email: String, password: String): Int
 
     @Query("SELECT * FROM login_details WHERE email = :email AND password = :password LIMIT 1")
     suspend fun getUserCredentials(email: String, password: String): LocalLoginDetails?

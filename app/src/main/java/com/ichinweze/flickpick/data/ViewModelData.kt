@@ -4,6 +4,7 @@ object ViewModelData {
 
     const val SCREEN_UNINITIALISED = "screen_uninitialised"
     const val SCREEN_INITIALISING = "screen_initialising"
+    const val SCREEN_ERROR_INITIALISING = "screen_error_initialising"
     const val SCREEN_INITIALISED = "screen_initialised"
     const val SCREEN_LOADING_RESULTS = "screen_loading_results"
     const val SCREEN_LOADED_RESULTS = "screen_loaded_results"
@@ -65,5 +66,17 @@ object ViewModelData {
         val posterPath: String?,
         val releaseDate: String,
         val overview: String
+    )
+
+    val emptyProcessedResult = ProcessedResult(
+        id = 0,
+        genreIds = emptyList(),
+        title = "",
+        voteAverage = 0f,
+        voteCount = 0,
+        popularity = 0f,
+        posterPath = null,
+        releaseDate = "",
+        overview = ""
     )
 }
