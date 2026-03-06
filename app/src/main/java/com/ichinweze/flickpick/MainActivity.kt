@@ -15,6 +15,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.ichinweze.flickpick.repositiories.AccountRepository
 import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
@@ -24,6 +29,7 @@ import com.ichinweze.flickpick.screens.BaselineQuestionScreen
 import com.ichinweze.flickpick.screens.DashboardScreen
 import com.ichinweze.flickpick.screens.HistoryScreen
 import com.ichinweze.flickpick.screens.LoginScreen
+import com.ichinweze.flickpick.screens.LoginScreenV2
 import com.ichinweze.flickpick.screens.RecommendQuestionScreen
 import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.BASELINE_Q_SCREEN
@@ -37,12 +43,23 @@ import com.ichinweze.flickpick.viewmodels.LoginViewModel
 import com.ichinweze.flickpick.viewmodels.RecommendViewModel
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        FirebaseApp.initializeApp(this)
+        auth = Firebase.auth
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        val startDestination = if (currentUser != null) DASHBOARD_SCREEN else LOGIN_SCREEN
+
         setContent {
             Surface(modifier = Modifier.fillMaxSize()) {
-                AppNavigation()
+                AppNavigation(startDestination)
             }
         }
     }
@@ -61,10 +78,8 @@ fun GreetingPreview() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String) {
     val navController = rememberNavController()
-
-    // TODO: Start Destination to dashboard screen if logged in as user
 
     val context = LocalContext.current
 
@@ -109,10 +124,10 @@ fun AppNavigation() {
         extras = accountVMCreationExtras
     )
 
-
-    NavHost(navController = navController, startDestination = LOGIN_SCREEN) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(LOGIN_SCREEN) {
-            LoginScreen(navController, loginViewModel, context)
+            //LoginScreen(navController, loginViewModel, context)
+            LoginScreenV2(navController, loginViewModel, context)
         }
         composable(route = DASHBOARD_SCREEN) {
             DashboardScreen(navController)

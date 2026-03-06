@@ -36,4 +36,7 @@
     <string name="register_confirm_password">Please confirm password</string>
     <string name="toggle_password">Toggle password visibility</string>
     <string name="first_signin">Registration complete… Please sign in!</string>
+    <string name="fatal_error">Something has gone terribly wrong…</string>
+    <string name="web_client_id">980256128527-ea6so7qoc0jpfn8a5c4bce2hulmiiauu.apps.googleusercontent.com</string>
+    <string name="please_sign_in">Please sign in!</string>
 </resources>

@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.userProfileChangeRequest
 import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_ERROR_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
@@ -28,6 +31,8 @@ class AccountViewModel(
     val accountRepository: AccountRepository
 ): ViewModel() {
 
+    private val auth = FirebaseAuth.getInstance()
+
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
 
@@ -45,7 +50,20 @@ class AccountViewModel(
     private val movieRegionChecklistItems = mutableListOf<ChecklistItem>()
 
     fun initialiseScreen() {
-        viewModelScope.launch(Dispatchers.IO) {
+        if (_screenState.value == SCREEN_UNINITIALISED) {
+            val currentUser = auth.currentUser
+
+            currentUser?.let {
+                setAccountName(it.displayName.toString())
+                setAccountEmail(it.email.toString())
+            }
+            println("AccountViewModel: initialiseScreen: name: ${_name.value}")
+            println("AccountViewModel: initialiseScreen: email: ${_email.value}")
+
+            _screenState.update { currentState -> SCREEN_INITIALISED }
+        }
+
+        /*viewModelScope.launch(Dispatchers.IO) {
             // TODO: Read in baseline details and include at bottom of account page
 
             if (_screenState.value == SCREEN_UNINITIALISED) {
@@ -72,6 +90,16 @@ class AccountViewModel(
                     println("AccountViewModel: initialiseScreen: updating screen state to initialised: ${screenState.value}")
                 }
             }
+        }*/
+    }
+
+    fun updateScreenState(newState: String) {
+        _screenState.update { currentState -> newState }
+    }
+
+    fun updateProfile() {
+        userProfileChangeRequest {
+            //displayName =
         }
     }
 

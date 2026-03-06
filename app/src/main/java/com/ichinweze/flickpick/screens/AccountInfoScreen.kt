@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseUser
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
@@ -48,7 +50,10 @@ import com.ichinweze.flickpick.viewmodels.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountInfoScreen(navController: NavController, accountViewModel: AccountViewModel) {
+fun AccountInfoScreen(
+    navController: NavController,
+    accountViewModel: AccountViewModel
+) {
     // TODO: Move State into a ViewModel
     // TODO: Move common items to a Utils
 
@@ -85,7 +90,7 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
 
     val accountName = accountViewModel.name.collectAsState()
     val accountEmail = accountViewModel.email.collectAsState()
-    val accountAge = accountViewModel.age.collectAsState()
+    //val accountAge = accountViewModel.age.collectAsState()
 
     Scaffold(
         topBar = {
@@ -99,15 +104,7 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Red,
                     titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(R.string.arrow_back)
-                        )
-                    }
-                }
+                )
             )
         },
         bottomBar = {
@@ -155,7 +152,8 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
             ) {
                 // Name
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
                     Text(
                         text = "Name",
@@ -171,6 +169,8 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                         textAlign = TextAlign.Right
                     )
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Email
                 Row(
@@ -192,7 +192,7 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                 }
 
                 // Age
-                Row(
+                /*Row(
                     modifier = Modifier.fillMaxWidth()
                 )  {
                     Text(
@@ -208,7 +208,7 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                         fontSize = 22.sp,
                         textAlign = TextAlign.Right
                     )
-                }
+                }*/
             }
         }
     )

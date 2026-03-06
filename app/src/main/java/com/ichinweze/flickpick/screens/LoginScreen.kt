@@ -75,7 +75,6 @@ fun LoginScreen(
     val emailExists = loginViewModel.emailCheckResponse.collectAsState()
     val userExists = loginViewModel.credentialCheckResponse.collectAsState()
 
-    // TODO: Add check for whether user is logged in
     LaunchedEffect(Unit) { loginViewModel.initialiseScreen() }
 
     Surface {
