@@ -3,30 +3,21 @@ package com.ichinweze.flickpick.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
-import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.data.firestore.BaselineQuestion
 import com.ichinweze.flickpick.data.firestore.UserAccountDetails
-import com.ichinweze.flickpick.repositiories.AccountRepository
-import com.ichinweze.flickpick.repositiories.LoginRepository
-import com.ichinweze.flickpick.viewmodels.utils.ViewModelUtils.ChecklistItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class AccountViewModel(
-    //val csvRepository: CsvRepositoryImpl,
-    //val baselineRepository: BaselineRepository,
-    val loginRepository: LoginRepository,
-    val accountRepository: AccountRepository
-): ViewModel() {
+class AccountViewModel(): ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
 
@@ -35,11 +26,15 @@ class AccountViewModel(
     private val _selectedNavBarState: MutableStateFlow<Int> = MutableStateFlow(0)
     val selectedNavBarState = _selectedNavBarState.asStateFlow()
 
+    private val selectedNavBarIndex = 0
+
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
 
     private val _previousUserDetails: MutableStateFlow<Map<String, String>> = MutableStateFlow(emptyMap())
-    val previousUserDetails = _previousUserDetails.asStateFlow()
+
+    private val _baselineQuestions: MutableStateFlow<List<BaselineQuestion>> = MutableStateFlow(emptyList())
+    val baselineQuestions = _baselineQuestions.asStateFlow()
 
     private val _name: MutableStateFlow<String> = MutableStateFlow("Please provide name")
     val name = _name.asStateFlow()
@@ -49,10 +44,6 @@ class AccountViewModel(
 
     private val _age: MutableStateFlow<String> = MutableStateFlow("Please provide age")
     val age = _age.asStateFlow()
-
-    private val questionList = mutableListOf<QuestionData>()
-    private val genreChecklistItems = mutableListOf<ChecklistItem>()
-    private val movieRegionChecklistItems = mutableListOf<ChecklistItem>()
 
     private val TAG: String = "AccountViewModel"
 
@@ -64,28 +55,10 @@ class AccountViewModel(
                 setAccountName(it.displayName.toString())
                 setAccountEmail(it.email.toString())
             }
-            println("AccountViewModel: initialiseScreen: name: ${_name.value}")
-            println("AccountViewModel: initialiseScreen: email: ${_email.value}")
 
-            // TODO: Get details from Firestore for user
-            val docRef = firestoreDb.collection("account_details").document(_email.value)
+            getUserDetailsFromFirestore()
 
-            docRef.get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        val user = documentSnapshot.toObject(UserAccountDetails::class.java)
-                        Log.d(TAG, "User details successfully retrieved")
-
-                        if (user != null) {
-                            setAccountAge(user.age ?: "")
-                        }
-                    } else {
-                        Log.d(TAG, "No such document")
-                    }
-                }
-                .addOnFailureListener { exception ->
-                    Log.d(TAG, "get failed with ", exception)
-                }
+            getBaselineQuestionsFromFirestore()
 
             _screenState.update { currentState -> SCREEN_INITIALISED }
         }
@@ -109,6 +82,31 @@ class AccountViewModel(
 
     fun setAccountEmail(newEmail: String) {
         _email.update { current -> newEmail }
+    }
+
+    fun getSelectedNavBarIndex(): Int {
+        return selectedNavBarIndex
+    }
+
+    fun getUserDetailsFromFirestore() {
+        val docRef = firestoreDb.collection("account_details").document(_email.value)
+
+        docRef.get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val user = documentSnapshot.toObject(UserAccountDetails::class.java)
+                    Log.d(TAG, "User details successfully retrieved")
+
+                    if (user != null) {
+                        setAccountAge(user.age ?: "")
+                    }
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
     }
 
     fun setPreviousUserDetailsToTrack() {
@@ -162,20 +160,34 @@ class AccountViewModel(
         }
     }
 
-    companion object {
-        //val CSV_REPOSITORY_KEY = object : CreationExtras.Key<CsvRepositoryImpl> {}
-        //val BASELINE_REPOSITORY_KEY = object : CreationExtras.Key<BaselineRepository> {}
-        val LOGIN_REPOSITORY_KEY = object : CreationExtras.Key<LoginRepository> {}
-        val ACCOUNT_REPOSITORY_KEY = object : CreationExtras.Key<AccountRepository> {}
+    fun getBaselineQuestionsFromFirestore() {
+        val collectionPath = "baseline_questions/${_email.value}/questions"
+        val collectionRef = firestoreDb.collection(collectionPath)
 
+        collectionRef
+            .get()
+            .addOnSuccessListener { result ->
+                for (documentSnapshot in result) {
+                    val baselineQuestion = documentSnapshot.toObject(BaselineQuestion::class.java)
+                    Log.d(TAG, "Baseline question with index ${baselineQuestion.questionIndex} retrieved")
+
+                    _baselineQuestions.update { currentList -> currentList.plus(baselineQuestion) }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error getting documents: ", exception)
+            }
+    }
+
+    fun resetScreen() {
+        _screenState.update { state -> SCREEN_UNINITIALISED }
+        _baselineQuestions.update { currentList -> emptyList() }
+    }
+
+    companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                // val csvRepository = this[CSV_REPOSITORY_KEY] as CsvRepositoryImpl
-                // val baselineRepository = this[BASELINE_REPOSITORY_KEY] as BaselineRepository
-                val loginRepository = this[LOGIN_REPOSITORY_KEY] as LoginRepository
-                val accountRepository = this[ACCOUNT_REPOSITORY_KEY] as AccountRepository
-
-                AccountViewModel(loginRepository, accountRepository)
+                AccountViewModel()
             }
         }
     }

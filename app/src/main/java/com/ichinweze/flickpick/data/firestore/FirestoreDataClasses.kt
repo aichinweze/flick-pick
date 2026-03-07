@@ -5,7 +5,7 @@ data class UserAccountDetails(
     val age: String? = null
 )
 
-data class BaselineQuestions(
+data class BaselineQuestion(
     val questionIndex: Int? = null,
     val question: String? = null,
     val responses: List<String>? = null

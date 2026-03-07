@@ -15,10 +15,8 @@ import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
-import com.ichinweze.flickpick.data.firestore.BaselineQuestions
-import com.ichinweze.flickpick.repositiories.BaselineRepository
+import com.ichinweze.flickpick.data.firestore.BaselineQuestion
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
-import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.BASELINE_QUESTIONS_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.MOVIE_REGION_CSV
@@ -57,7 +55,7 @@ class BaselineViewModel(
 
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
 
-    private var baselineQuestionResponses = mutableListOf<BaselineQuestions>()
+    private var baselineQuestionResponses = mutableListOf<BaselineQuestion>()
 
     private val _checklistOptions: MutableStateFlow<List<ChecklistItem>> = MutableStateFlow(listOf())
     val checklistOptions = _checklistOptions.asStateFlow()
@@ -84,34 +82,24 @@ class BaselineViewModel(
                 val listOfQuestions = csvRepository
                     .getCsvLines(BASELINE_QUESTIONS_CSV, false)
                     .map { mapRawLineToQuestionData(it) }
-
                 questionList.addAll(listOfQuestions)
-                println("BaselineViewModel: initialiseScreen: list of questions assigned to ViewModel: $questionList")
 
                 val genres = csvRepository
                     .getCsvLines(GENRE_LIST_CSV, false)
                     .map { mapRawLineToGenreData(it) }
                 val genreItems = genres.map { convertGenreToChecklistItem(it) }
-
                 genreChecklistItems.addAll(genreItems)
-                println("BaselineViewModel: initialiseScreen: genre checklist assigned to ViewModel: $genreChecklistItems")
 
                 val movieRegions = csvRepository
                     .getCsvLines(MOVIE_REGION_CSV, false)
                     .map{ mapRawLineToMovieRegionData(it) }
                 val movieRegionItems = movieRegions.map { convertMovieRegionToChecklistItem(it) }
-
                 movieRegionChecklistItems.addAll(movieRegionItems)
-                println("BaselineViewModel: initialiseScreen: movie region checklist assigned to ViewModel: $movieRegionChecklistItems")
 
                 numberOfQuestions.intValue = listOfQuestions.size
-                println("BaselineViewModel: initialiseScreen: assigning size of questions to VM: ${numberOfQuestions.intValue}")
 
                 updateChecklistOptions(_currentQuestionIndex.value)
-                println("BaselineViewModel: initialiseScreen: getting initial set of checklist options: ${checklistOptions.value}")
-
                 updateCurrentQuestion(_currentQuestionIndex.value)
-                println("BaselineViewModel: initialiseScreen: assigned current question: ${_currentQuestion.value}")
 
                 _screenState.update { currentState -> SCREEN_INITIALISED }
                 println("BaselineViewModel: initialiseScreen: updating screen state to initialised: ${screenState.value}")
@@ -202,6 +190,7 @@ class BaselineViewModel(
         questionList.clear()
         genreChecklistItems.clear()
         movieRegionChecklistItems.clear()
+        baselineQuestionResponses.clear()
     }
 
     fun updateResponseMap(currQIdx: Int, checklistItems: List<ChecklistItem>) {
@@ -225,22 +214,23 @@ class BaselineViewModel(
 
             val itemStrings = checklistItems.map { it -> it.checklistItem }
 
-            BaselineQuestions(questionIndex = key, question = question, responses = itemStrings)
+            BaselineQuestion(questionIndex = key, question = question, responses = itemStrings)
         }.toMutableList()
     }
 
     fun persistQuestionResponses() {
         baselineQuestionResponses.forEach { response ->
             val questionIndex = "Question_${response.questionIndex}"
-            val documentId = "${_email.value}_$questionIndex"
 
             firestoreDb
                 .collection("baseline_questions")
-                .document(documentId)
+                .document(_email.value)
+                .collection("questions")
+                .document(questionIndex)
                 .set(response)
                 .addOnSuccessListener {
                     // Handle success (e.g., show a Toast message)
-                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $documentId")
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to /baseline_questions/${_email.value}/questions")
                 }
                 .addOnFailureListener { e ->
                     // Handle failure (e.g., log the error)

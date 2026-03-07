@@ -71,7 +71,10 @@ fun BaselineQuestionScreen(
                     titleContentColor = Color.White
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = {
+                        baselineViewModel.resetScreen()
+                        navController.popBackStack()
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Rounded.ArrowBack,
                             contentDescription = stringResource(R.string.arrow_back)

@@ -93,11 +93,6 @@ fun AppNavigation(startDestination: String) {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
     }
 
-    val accountVMCreationExtras = MutableCreationExtras().apply {
-        set(AccountViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
-        set(AccountViewModel.ACCOUNT_REPOSITORY_KEY, accountRepository)
-    }
-
     // View Models
     val baselineViewModel: BaselineViewModel = viewModel(
         factory = BaselineViewModel.Factory,
@@ -111,8 +106,7 @@ fun AppNavigation(startDestination: String) {
         factory = LoginViewModel.Factory
     )
     val accountViewModel: AccountViewModel = viewModel(
-        factory = AccountViewModel.Factory,
-        extras = accountVMCreationExtras
+        factory = AccountViewModel.Factory
     )
 
     NavHost(navController = navController, startDestination = startDestination) {

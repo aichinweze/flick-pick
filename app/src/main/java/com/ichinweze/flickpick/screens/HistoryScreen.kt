@@ -36,8 +36,11 @@ import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
+import com.ichinweze.flickpick.screens.utils.AccountNavigationItem
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.screens.utils.HistoryNavigationItem
+import com.ichinweze.flickpick.screens.utils.HomeNavigationItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,34 +48,13 @@ fun HistoryScreen(navController: NavController) {
     // TODO: Move State into a ViewModel
     // TODO: Move common items to a Utils
 
-    val accountNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.account_nav_item),
-        navigationScreen = ACCOUNT_INFO_SCREEN,
-        selectedIcon = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person,
-        hasNews = false
+    val bottomNavItems = listOf(
+        AccountNavigationItem(),
+        HomeNavigationItem(),
+        HistoryNavigationItem()
     )
 
-    // TODO: Can have news if user needs to provide feedback
-    val historyNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.history_nav_item),
-        navigationScreen = HISTORY_SCREEN,
-        selectedIcon = Icons.Filled.Info,
-        unselectedIcon = Icons.Outlined.Info,
-        hasNews = true
-    )
-
-    val homeNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.home_nav_item),
-        navigationScreen = DASHBOARD_SCREEN,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-        hasNews = false
-    )
-
-    val bottomNavItems = listOf(accountNavigationItem, homeNavigationItem, historyNavigationItem)
-
-    val selectedState = remember { mutableIntStateOf(2) }
+    val selectedNavBarIdx = 2
 
     Scaffold(
         topBar = {
@@ -86,28 +68,18 @@ fun HistoryScreen(navController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Red,
                     titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(R.string.arrow_back)
-                        )
-                    }
-                }
+                )
             )
         },
         bottomBar = {
             NavigationBar {
                 bottomNavItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = selectedState.intValue == index,
+                        selected = selectedNavBarIdx == index,
                         onClick = {
                             // Pop up to home (dashboard) or go to history screen
-                            if (selectedState.intValue != index) {
-                                selectedState.intValue = index
-                                if (index == 1) navController.popBackStack()
-                                else navController.navigate(item.navigationScreen) {
+                            if (selectedNavBarIdx != index) {
+                                navController.navigate(item.navigationScreen) {
                                     popUpTo(DASHBOARD_SCREEN) { inclusive = false }
                                 }
                             }
@@ -120,7 +92,7 @@ fun HistoryScreen(navController: NavController) {
                             }) {
                                 Icon(
                                     imageVector =
-                                    if (index == selectedState.intValue) {
+                                    if (index == selectedNavBarIdx) {
                                         item.selectedIcon
                                     } else item.unselectedIcon,
                                     contentDescription = item.title

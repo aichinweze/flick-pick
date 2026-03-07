@@ -7,8 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ichinweze.flickpick.R
+import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 
 
 // Application screens
@@ -149,4 +156,38 @@ fun TextAndButtonRow(
             Text(text = buttonText, fontSize = 30.sp)
         }
     }
+}
+
+@Composable
+fun AccountNavigationItem(): BottomNavigationItem {
+    return BottomNavigationItem(
+        title = stringResource(R.string.account_nav_item),
+        navigationScreen = ACCOUNT_INFO_SCREEN,
+        selectedIcon = Icons.Filled.Person,
+        unselectedIcon = Icons.Outlined.Person,
+        hasNews = false
+    )
+}
+
+// TODO: Can have news if user needs to provide feedback
+@Composable
+fun HistoryNavigationItem(): BottomNavigationItem {
+    return BottomNavigationItem(
+        title = stringResource(R.string.history_nav_item),
+        navigationScreen = HISTORY_SCREEN,
+        selectedIcon = Icons.Filled.Info,
+        unselectedIcon = Icons.Outlined.Info,
+        hasNews = false
+    )
+}
+
+@Composable
+fun HomeNavigationItem(): BottomNavigationItem {
+    return BottomNavigationItem(
+        title = stringResource(R.string.home_nav_item),
+        navigationScreen = DASHBOARD_SCREEN,
+        selectedIcon = Icons.Filled.Home,
+        unselectedIcon = Icons.Outlined.Home,
+        hasNews = false
+    )
 }
