@@ -166,7 +166,7 @@ fun DashboardScreen(navController: NavController) {
                 ) {
                     Text(
                         text = stringResource(R.string.dashboard_to_recommend),
-                        fontSize = 45.sp,
+                        fontSize = 25.sp,
                         textAlign = TextAlign.Center
                     )
                 }

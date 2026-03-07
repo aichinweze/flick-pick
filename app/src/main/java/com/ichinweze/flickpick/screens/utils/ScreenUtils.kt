@@ -49,18 +49,16 @@ fun QuestionWithIndexAndContent(
 
     Text(
         text = "${stringResource(R.string.question)} ${questionIndex + 1}",
-        fontSize = 40.sp,
+        fontSize = 35.sp,
         textAlign = TextAlign.Start,
-        modifier = Modifier
-            .padding(all = 5.dp)
+        modifier = Modifier.padding(all = 3.dp).fillMaxWidth()
     )
 
     Text(
         text = "${questionContent}$selectOptionForQuestion",
-        fontSize = 20.sp,
+        fontSize = 15.sp,
         textAlign = TextAlign.Start,
-        modifier = Modifier
-            .padding(all = 5.dp)
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

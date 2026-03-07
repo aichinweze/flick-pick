@@ -9,8 +9,8 @@
     <string name="account_nav_item">Account</string>
     <string name="history_nav_item">History</string>
     <string name="home_nav_item">Home</string>
-    <string name="dashboard_to_baseline">Complete Baseline Questionnaire</string>
-    <string name="dashboard_to_recommend">Find a Movie!</string>
+    <string name="dashboard_to_baseline">Baseline Questionnaire</string>
+    <string name="dashboard_to_recommend">Pick a Flick!</string>
     <string name="account_info">Account Information</string>
     <string name="history">History</string>
     <string name="baseline_q">Baseline Questions</string>

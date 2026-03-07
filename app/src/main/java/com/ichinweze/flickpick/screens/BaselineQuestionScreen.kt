@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -48,7 +49,6 @@ fun BaselineQuestionScreen(
     val currQuestionIdx = baselineViewModel.currentQuestionIndex.collectAsState()
     val currQuestionStr = baselineViewModel.currentQuestion.collectAsState()
     val checklistOptions = baselineViewModel.checklistOptions.collectAsState()
-    //val currQuestionIsOptional = baselineViewModel.currentQuestionIsOptional.collectAsState()
 
     val tooManySelectionsToast = stringResource(R.string.toast_already_3)
     val noSelectionsToast = stringResource(R.string.toast_selected_0)
@@ -92,6 +92,7 @@ fun BaselineQuestionScreen(
                         modifier = Modifier
                             .weight(1.5f)
                             .padding(start = 10.dp)
+                            .fillMaxWidth()
                     ) {
                         QuestionWithIndexAndContent(
                             questionIndex = currQuestionIdx.value,
@@ -182,8 +183,9 @@ fun BaselineQuestionScreen(
                                         baselineViewModel.goForward()
                                     }
                                     else {
-                                        // TODO: Persist information acquired from questionnaire
-                                        // TODO: When questions are done, should see button to return to dashboard
+                                        baselineViewModel.finaliseQuestionResponses()
+                                        baselineViewModel.persistQuestionResponses()
+
                                         baselineViewModel.resetScreen()
                                         navController.popBackStack()
                                     }

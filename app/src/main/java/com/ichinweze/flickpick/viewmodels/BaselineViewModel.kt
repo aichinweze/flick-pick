@@ -1,18 +1,21 @@
 package com.ichinweze.flickpick.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.ichinweze.flickpick.data.ScreenData.BaselineDetails
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.data.firestore.BaselineQuestions
 import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
 import com.ichinweze.flickpick.repositiories.LoginRepository
@@ -38,8 +41,14 @@ class BaselineViewModel(
     val loginRepository: LoginRepository
 ) : ViewModel() {
 
+    private val firestoreDb = Firebase.firestore
+
+    private val auth = FirebaseAuth.getInstance()
+
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
+
+    private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
     private val questionList = mutableListOf<QuestionData>()
 
@@ -50,7 +59,7 @@ class BaselineViewModel(
 
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
 
-    private val userEmail = mutableStateOf("")
+    private var baselineQuestionResponses = mutableListOf<BaselineQuestions>()
 
     private val _checklistOptions: MutableStateFlow<List<ChecklistItem>> = MutableStateFlow(listOf())
     val checklistOptions = _checklistOptions.asStateFlow()
@@ -61,12 +70,18 @@ class BaselineViewModel(
     private val _currentQuestion: MutableStateFlow<String> = MutableStateFlow("")
     val currentQuestion = _currentQuestion.asStateFlow()
 
+    private val TAG: String = "BaselineViewModel: "
+
     // Read data from csv files and initialise parameters
     fun initialiseScreen() {
         viewModelScope.launch(Dispatchers.IO) {
             if (_screenState.value == SCREEN_UNINITIALISED) {
                 println("BaselineViewModel: initialiseScreen: Starting process...")
                 updateScreenState(SCREEN_INITIALISING)
+
+                val currentUser = auth.currentUser
+
+                currentUser?.let { setAccountEmail(it.email.toString()) }
 
                 val listOfQuestions = csvRepository
                     .getCsvLines(BASELINE_QUESTIONS_CSV, false)
@@ -87,11 +102,6 @@ class BaselineViewModel(
                     .getCsvLines(MOVIE_REGION_CSV, false)
                     .map{ mapRawLineToMovieRegionData(it) }
                 val movieRegionItems = movieRegions.map { convertMovieRegionToChecklistItem(it) }
-
-                // TODO: Get active email/user ID
-
-                val activeUserEmail = loginRepository.getActiveUserEmail()
-                userEmail.value = activeUserEmail
 
                 movieRegionChecklistItems.addAll(movieRegionItems)
                 println("BaselineViewModel: initialiseScreen: movie region checklist assigned to ViewModel: $movieRegionChecklistItems")
@@ -123,6 +133,10 @@ class BaselineViewModel(
         }
     }
 
+    fun setAccountEmail(newEmail: String) {
+        _email.update { current -> newEmail }
+    }
+
     fun updateChecklistOptions(currQIdx: Int) {
         val checklistOptions =
             when (currQIdx) {
@@ -131,13 +145,6 @@ class BaselineViewModel(
             }
 
         _checklistOptions.update { state -> checklistOptions }
-    }
-
-    fun setActiveUserEmail() {
-        viewModelScope.launch(Dispatchers.IO) {
-
-        }
-
     }
 
     fun persistChecklistState(currQIdx: Int) {
@@ -174,19 +181,6 @@ class BaselineViewModel(
         }
     }
 
-    fun persistBaselineQuestions() {
-        viewModelScope.launch(Dispatchers.IO) {
-            checklistResponseMap.forEach { (idx, response) ->
-                val baselineDetails = BaselineDetails(
-                    baselineQuestionIndex = idx,
-                    baselineResponses = response.responses
-                )
-
-                baselineRepository.upsertBaselineDetails(userEmail.value, baselineDetails)
-            }
-        }
-    }
-
     fun goForward() {
         _currentQuestionIndex.update { currentIdx ->
             val nextIdx = currentIdx + 1
@@ -205,12 +199,56 @@ class BaselineViewModel(
         _checklistOptions.update { current -> listOf() }
         _currentQuestionIndex.update { current -> 0 }
         _currentQuestion.update { current -> "" }
+
+        checklistResponseMap.clear()
+        questionList.clear()
+        genreChecklistItems.clear()
+        movieRegionChecklistItems.clear()
     }
 
     fun updateResponseMap(currQIdx: Int, checklistItems: List<ChecklistItem>) {
         val responses = ChecklistResponse(responses = checklistItems.map { item -> item.index })
 
         checklistResponseMap.put(currQIdx, responses)
+    }
+
+    fun finaliseQuestionResponses() {
+        baselineQuestionResponses = checklistResponseMap.keys.map { key ->
+            val responseIndices = checklistResponseMap.getValue(key).responses
+            val question = questionList
+                .find { it -> it.index == key }
+                .let { questionData -> questionData?.question } ?: "Undefined Question"
+
+            val checklistItems =
+                when (key) {
+                    0    -> genreChecklistItems.filter { it -> responseIndices.contains(it.index) }
+                    else -> movieRegionChecklistItems.filter { it -> responseIndices.contains(it.index) }
+                }
+
+            val itemStrings = checklistItems.map { it -> it.checklistItem }
+
+            BaselineQuestions(questionIndex = key, question = question, responses = itemStrings)
+        }.toMutableList()
+    }
+
+    fun persistQuestionResponses() {
+        baselineQuestionResponses.forEach { response ->
+            val questionIndex = "Question_${response.questionIndex}"
+            val documentId = "${_email.value}_$questionIndex"
+
+            firestoreDb
+                .collection("baseline_questions")
+                .document(documentId)
+                .set(response)
+                .addOnSuccessListener {
+                    // Handle success (e.g., show a Toast message)
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $documentId")
+                }
+                .addOnFailureListener { e ->
+                    // Handle failure (e.g., log the error)
+                    Log.w(TAG, "Error writing document", e)
+                }
+        }
     }
 
     fun updateOptionStateAtIndex(index: Int, state: Boolean) {
