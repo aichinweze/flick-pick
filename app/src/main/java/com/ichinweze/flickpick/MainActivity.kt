@@ -18,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.ichinweze.flickpick.repositiories.AccountRepository
 import com.ichinweze.flickpick.repositiories.BaselineRepository
@@ -29,7 +28,6 @@ import com.ichinweze.flickpick.screens.BaselineQuestionScreen
 import com.ichinweze.flickpick.screens.DashboardScreen
 import com.ichinweze.flickpick.screens.HistoryScreen
 import com.ichinweze.flickpick.screens.LoginScreen
-import com.ichinweze.flickpick.screens.LoginScreenV2
 import com.ichinweze.flickpick.screens.RecommendQuestionScreen
 import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.BASELINE_Q_SCREEN
@@ -97,9 +95,6 @@ fun AppNavigation(startDestination: String) {
     val recommendVMCreationExtras = MutableCreationExtras().apply {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
     }
-    val loginVMCreationExtras = MutableCreationExtras().apply {
-        set(LoginViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
-    }
 
     val accountVMCreationExtras = MutableCreationExtras().apply {
         set(AccountViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
@@ -116,8 +111,7 @@ fun AppNavigation(startDestination: String) {
         extras = recommendVMCreationExtras
     )
     val loginViewModel: LoginViewModel = viewModel(
-        factory = LoginViewModel.Factory,
-        extras = loginVMCreationExtras
+        factory = LoginViewModel.Factory
     )
     val accountViewModel: AccountViewModel = viewModel(
         factory = AccountViewModel.Factory,
@@ -126,8 +120,7 @@ fun AppNavigation(startDestination: String) {
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable(LOGIN_SCREEN) {
-            //LoginScreen(navController, loginViewModel, context)
-            LoginScreenV2(navController, loginViewModel, context)
+            LoginScreen(navController, loginViewModel, context)
         }
         composable(route = DASHBOARD_SCREEN) {
             DashboardScreen(navController)
