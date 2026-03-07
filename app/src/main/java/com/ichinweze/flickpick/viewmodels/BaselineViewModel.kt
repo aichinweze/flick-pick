@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import com.ichinweze.flickpick.data.ViewModelData.BASELINE_QUESTIONS_COLLECTION
+import com.ichinweze.flickpick.data.ViewModelData.QUESTIONS_COLLECTION
 import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
@@ -223,14 +225,14 @@ class BaselineViewModel(
             val questionIndex = "Question_${response.questionIndex}"
 
             firestoreDb
-                .collection("baseline_questions")
+                .collection(BASELINE_QUESTIONS_COLLECTION)
                 .document(_email.value)
-                .collection("questions")
+                .collection(QUESTIONS_COLLECTION)
                 .document(questionIndex)
                 .set(response)
                 .addOnSuccessListener {
                     // Handle success (e.g., show a Toast message)
-                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to /baseline_questions/${_email.value}/questions")
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to $BASELINE_QUESTIONS_COLLECTION/${_email.value}/questions")
                 }
                 .addOnFailureListener { e ->
                     // Handle failure (e.g., log the error)

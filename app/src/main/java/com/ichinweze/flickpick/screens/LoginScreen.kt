@@ -55,7 +55,7 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             Text(
                 text = stringResource(R.string.please_sign_in),
@@ -66,13 +66,14 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(30.dp))
 
             Image(
                 painter = painterResource(R.drawable.siwg_button),
                 contentDescription = "Sign in with Google",
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(75.dp)
                     .padding(10.dp)
                     .clickable(
                         enabled = true,

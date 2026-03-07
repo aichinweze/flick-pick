@@ -37,6 +37,7 @@ import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
 import com.ichinweze.flickpick.viewmodels.AccountViewModel
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
+import com.ichinweze.flickpick.viewmodels.HistoryViewModel
 import com.ichinweze.flickpick.viewmodels.LoginViewModel
 import com.ichinweze.flickpick.viewmodels.RecommendViewModel
 
@@ -82,8 +83,6 @@ fun AppNavigation(startDestination: String) {
     val context = LocalContext.current
 
     val csvRepository: CsvRepositoryImpl = CsvRepositoryImpl(context)
-    val loginRepository: LoginRepository = LoginRepository(context)
-    val accountRepository: AccountRepository = AccountRepository(context)
 
     // Creation Extras for View Models
     val baselineVMCreationExtras = MutableCreationExtras().apply {
@@ -108,6 +107,9 @@ fun AppNavigation(startDestination: String) {
     val accountViewModel: AccountViewModel = viewModel(
         factory = AccountViewModel.Factory
     )
+    val historyViewModel: HistoryViewModel = viewModel(
+        factory = HistoryViewModel.Factory
+    )
 
     NavHost(navController = navController, startDestination = startDestination) {
         composable(LOGIN_SCREEN) {
@@ -120,7 +122,7 @@ fun AppNavigation(startDestination: String) {
             AccountInfoScreen(navController, accountViewModel, context)
         }
         composable(route = HISTORY_SCREEN) {
-            HistoryScreen(navController)
+            HistoryScreen(navController, historyViewModel, context)
         }
         composable(route = BASELINE_Q_SCREEN) {
             BaselineQuestionScreen(navController, baselineViewModel, context)

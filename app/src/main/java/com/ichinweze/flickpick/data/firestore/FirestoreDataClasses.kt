@@ -16,5 +16,5 @@ data class SelectedMovieDetails(
     val movieTitle: String? = null,
     val posterPath: String? = null,
     val releaseDate: String? = null,
-    val userRating: Float? = null
+    val userRating: Int? = null
 )

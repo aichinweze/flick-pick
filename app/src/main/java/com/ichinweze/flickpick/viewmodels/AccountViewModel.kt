@@ -13,6 +13,9 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
+import com.ichinweze.flickpick.data.ViewModelData.ACCOUNT_DETAILS_COLLECTION
+import com.ichinweze.flickpick.data.ViewModelData.BASELINE_QUESTIONS_COLLECTION
+import com.ichinweze.flickpick.data.ViewModelData.QUESTIONS_COLLECTION
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGOUT_SUCCESS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
@@ -85,7 +88,7 @@ class AccountViewModel(): ViewModel() {
     }
 
     fun getUserDetailsFromFirestore() {
-        val docRef = firestoreDb.collection("account_details").document(_email.value)
+        val docRef = firestoreDb.collection(ACCOUNT_DETAILS_COLLECTION).document(_email.value)
 
         docRef.get()
             .addOnSuccessListener { documentSnapshot ->
@@ -127,7 +130,7 @@ class AccountViewModel(): ViewModel() {
             val updatedUser = UserAccountDetails(name = newName, age = newAge)
 
             firestoreDb
-                .collection("account_details")
+                .collection(ACCOUNT_DETAILS_COLLECTION)
                 .document(_email.value)
                 .set(updatedUser)
                 .addOnSuccessListener {
@@ -157,7 +160,7 @@ class AccountViewModel(): ViewModel() {
     }
 
     fun getBaselineQuestionsFromFirestore() {
-        val collectionPath = "baseline_questions/${_email.value}/questions"
+        val collectionPath = "$BASELINE_QUESTIONS_COLLECTION/${_email.value}/$QUESTIONS_COLLECTION"
         val collectionRef = firestoreDb.collection(collectionPath)
 
         collectionRef

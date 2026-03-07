@@ -61,9 +61,6 @@ fun AccountInfoScreen(
     accountViewModel: AccountViewModel,
     context: Context
 ) {
-    // TODO: Move State into a ViewModel
-    // TODO: Move common items to a Utils
-
     val bottomNavItems = listOf(
         AccountNavigationItem(),
         HomeNavigationItem(),

@@ -16,6 +16,7 @@ import com.ichinweze.flickpick.data.ApiData.MovieGenreResponseData
 import com.ichinweze.flickpick.data.ApiData.MoviePageResult
 import com.ichinweze.flickpick.data.ViewModelData.AUTH_TOKEN
 import com.ichinweze.flickpick.data.ViewModelData.BASE_URL
+import com.ichinweze.flickpick.data.ViewModelData.MOVIE_DETAILS_COLLECTION
 import com.ichinweze.flickpick.data.ViewModelData.MovieQualityData
 import com.ichinweze.flickpick.data.ViewModelData.MovieRegionData
 import com.ichinweze.flickpick.data.ViewModelData.ProcessedResult
@@ -27,6 +28,7 @@ import com.ichinweze.flickpick.data.ViewModelData.SCREEN_NO_RESULTS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REVIEW_SELECTION
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.TimeBoundData
+import com.ichinweze.flickpick.data.ViewModelData.WATCH_HISTORY_COLLECTION
 import com.ichinweze.flickpick.data.firestore.SelectedMovieDetails
 import com.ichinweze.flickpick.interfaces.MovieApiService
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
@@ -514,14 +516,14 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
         )
 
         firestoreDb
-            .collection("watch_history")
+            .collection(WATCH_HISTORY_COLLECTION)
             .document(_email.value)
-            .collection("movie_details")
+            .collection(MOVIE_DETAILS_COLLECTION)
             .document(selectedMovie.title)
             .set(selectedMovieForFirestore)
             .addOnSuccessListener {
                 // Handle success (e.g., show a Toast message)
-                Log.d(TAG, "DocumentSnapshot successfully written with ID: ${selectedMovie.title} to watch_history/${_email.value}/movie_details")
+                Log.d(TAG, "DocumentSnapshot successfully written with ID: ${selectedMovie.title} to $WATCH_HISTORY_COLLECTION/${_email.value}/movie_details")
             }
             .addOnFailureListener { e ->
                 // Handle failure (e.g., log the error)
