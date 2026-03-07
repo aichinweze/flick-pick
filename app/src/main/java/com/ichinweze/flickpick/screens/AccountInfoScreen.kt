@@ -15,12 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -42,7 +36,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,16 +43,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_EDIT_MODE
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGOUT_SUCCESS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
-import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
 import com.ichinweze.flickpick.screens.utils.AccountNavigationItem
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
-import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
 import com.ichinweze.flickpick.screens.utils.HistoryNavigationItem
 import com.ichinweze.flickpick.screens.utils.HomeNavigationItem
+import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.viewmodels.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +70,6 @@ fun AccountInfoScreen(
         HistoryNavigationItem()
     )
 
-    val selectedState = accountViewModel.selectedNavBarState.collectAsState()
     val selectedNavBarIdx = 0
 
     LaunchedEffect(Unit) { accountViewModel.initialiseScreen() }
@@ -91,6 +82,14 @@ fun AccountInfoScreen(
     val screenState = accountViewModel.screenState.collectAsState()
 
     val ageError = stringResource(R.string.age_error)
+
+    if (screenState.value == SCREEN_LOGOUT_SUCCESS) {
+        accountViewModel.resetScreen()
+
+        navController.navigate(LOGIN_SCREEN) {
+            popUpTo(LOGIN_SCREEN) { inclusive = true }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -329,6 +328,20 @@ fun AccountInfoScreen(
                                         Spacer(modifier = Modifier.height(20.dp))
                                     }
                             }
+                        }
+                    }
+
+                    item {
+                        Button(
+                            onClick = { accountViewModel.signOutUser(context) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            modifier = Modifier.padding(horizontal = 20.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.sign_out),
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }

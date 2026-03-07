@@ -47,4 +47,5 @@
     <string name="save">Save</string>
     <string name="age_error">Please provide a real age!</string>
     <string name="loading_screen">Loading screen…</string>
+    <string name="sign_out">Sign Out</string>
 </resources>

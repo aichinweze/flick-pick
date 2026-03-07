@@ -1,8 +1,12 @@
 package com.ichinweze.flickpick.viewmodels
 
+import android.content.Context
 import android.util.Log
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.google.firebase.Firebase
@@ -10,23 +14,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.userProfileChangeRequest
 import com.google.firebase.firestore.firestore
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGOUT_SUCCESS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.UNINITIALISED_AGE
+import com.ichinweze.flickpick.data.ViewModelData.UNINITIALISED_NAME
 import com.ichinweze.flickpick.data.firestore.BaselineQuestion
 import com.ichinweze.flickpick.data.firestore.UserAccountDetails
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class AccountViewModel(): ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
 
     private val firestoreDb = Firebase.firestore
-
-    private val _selectedNavBarState: MutableStateFlow<Int> = MutableStateFlow(0)
-    val selectedNavBarState = _selectedNavBarState.asStateFlow()
-
-    private val selectedNavBarIndex = 0
 
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
@@ -36,13 +40,13 @@ class AccountViewModel(): ViewModel() {
     private val _baselineQuestions: MutableStateFlow<List<BaselineQuestion>> = MutableStateFlow(emptyList())
     val baselineQuestions = _baselineQuestions.asStateFlow()
 
-    private val _name: MutableStateFlow<String> = MutableStateFlow("Please provide name")
+    private val _name: MutableStateFlow<String> = MutableStateFlow(UNINITIALISED_NAME)
     val name = _name.asStateFlow()
 
     private val _email: MutableStateFlow<String> = MutableStateFlow("")
     val email = _email.asStateFlow()
 
-    private val _age: MutableStateFlow<String> = MutableStateFlow("Please provide age")
+    private val _age: MutableStateFlow<String> = MutableStateFlow(UNINITIALISED_AGE)
     val age = _age.asStateFlow()
 
     private val TAG: String = "AccountViewModel"
@@ -68,10 +72,6 @@ class AccountViewModel(): ViewModel() {
         _screenState.update { currentState -> newState }
     }
 
-    fun updateSelectedNavBarState(newState: Int) {
-        _selectedNavBarState.update { currentState -> newState }
-    }
-
     fun setAccountName(newName: String) {
         _name.update { current -> newName }
     }
@@ -82,10 +82,6 @@ class AccountViewModel(): ViewModel() {
 
     fun setAccountEmail(newEmail: String) {
         _email.update { current -> newEmail }
-    }
-
-    fun getSelectedNavBarIndex(): Int {
-        return selectedNavBarIndex
     }
 
     fun getUserDetailsFromFirestore() {
@@ -181,7 +177,22 @@ class AccountViewModel(): ViewModel() {
 
     fun resetScreen() {
         _screenState.update { state -> SCREEN_UNINITIALISED }
+        _previousUserDetails.update { state -> emptyMap() }
         _baselineQuestions.update { currentList -> emptyList() }
+        _name.update { state -> UNINITIALISED_NAME }
+        _age.update { state -> UNINITIALISED_AGE }
+        _email.update { state -> "" }
+    }
+
+    fun signOutUser(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            auth.signOut()
+
+            val credentialManager = CredentialManager.create(context)
+
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            _screenState.update { state -> SCREEN_LOGOUT_SUCCESS }
+        }
     }
 
     companion object {

@@ -17,6 +17,7 @@ object ViewModelData {
     const val SCREEN_LOGIN_CHECKING_CREDENTIALS = "screen_login_checking_credentials"
     const val SCREEN_LOGIN_CHECK_DONE = "screen_login_check_done"
     const val SCREEN_LOGIN_SUCCESS = "screen_login_success"
+    const val SCREEN_LOGOUT_SUCCESS = "screen_logout_success"
 
     const val SCREEN_REGISTER = "screen_register"
     const val SCREEN_REGISTER_CHECKING_EMAIL = "screen_register_checking_email"
@@ -32,6 +33,9 @@ object ViewModelData {
     const val VALID_ERROR_EMAIL_EXISTS = "User with this email is already present in the system."
     const val VALID_ERROR_INVALID_EMAIL = "Please provide a valid email."
     const val CHECKS_PASSED = "checks_passed"
+
+    const val UNINITIALISED_NAME = "Please provide name"
+    const val UNINITIALISED_AGE = "Please provide age"
 
     const val BASE_URL = "https://api.themoviedb.org/3/"
 
