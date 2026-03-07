@@ -36,9 +36,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BaselineViewModel(
-    val csvRepository: CsvRepositoryImpl,
-    val baselineRepository: BaselineRepository,
-    val loginRepository: LoginRepository
+    val csvRepository: CsvRepositoryImpl
 ) : ViewModel() {
 
     private val firestoreDb = Firebase.firestore
@@ -265,16 +263,12 @@ class BaselineViewModel(
 
     companion object {
         val CSV_REPOSITORY_KEY = object : CreationExtras.Key<CsvRepositoryImpl> {}
-        val BASELINE_REPOSITORY_KEY = object : CreationExtras.Key<BaselineRepository> {}
-        val LOGIN_REPOSITORY_KEY = object : CreationExtras.Key<LoginRepository> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val csvRepository = this[CSV_REPOSITORY_KEY] as CsvRepositoryImpl
-                val baselineRepository = this[BASELINE_REPOSITORY_KEY] as BaselineRepository
-                val loginRepository = this[LOGIN_REPOSITORY_KEY] as LoginRepository
 
-                BaselineViewModel(csvRepository, baselineRepository, loginRepository)
+                BaselineViewModel(csvRepository)
             }
         }
     }

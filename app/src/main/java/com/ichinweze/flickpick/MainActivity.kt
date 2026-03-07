@@ -83,14 +83,11 @@ fun AppNavigation(startDestination: String) {
 
     val csvRepository: CsvRepositoryImpl = CsvRepositoryImpl(context)
     val loginRepository: LoginRepository = LoginRepository(context)
-    val baselineRepository: BaselineRepository = BaselineRepository(context)
     val accountRepository: AccountRepository = AccountRepository(context)
 
     // Creation Extras for View Models
     val baselineVMCreationExtras = MutableCreationExtras().apply {
         set(BaselineViewModel.CSV_REPOSITORY_KEY, csvRepository)
-        set(BaselineViewModel.BASELINE_REPOSITORY_KEY, baselineRepository)
-        set(BaselineViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
     }
     val recommendVMCreationExtras = MutableCreationExtras().apply {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
