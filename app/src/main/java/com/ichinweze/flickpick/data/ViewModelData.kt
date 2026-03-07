@@ -11,6 +11,8 @@ object ViewModelData {
     const val SCREEN_REVIEW_SELECTION = "screen_review_selection"
     const val SCREEN_NO_RESULTS = "screen_no_results"
 
+    const val SCREEN_EDIT_MODE = "screen_edit_mode"
+
     const val SCREEN_LOGIN = "screen_login"
     const val SCREEN_LOGIN_CHECKING_CREDENTIALS = "screen_login_checking_credentials"
     const val SCREEN_LOGIN_CHECK_DONE = "screen_login_check_done"

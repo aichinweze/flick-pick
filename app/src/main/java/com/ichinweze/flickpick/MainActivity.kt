@@ -133,7 +133,7 @@ fun AppNavigation(startDestination: String) {
             DashboardScreen(navController)
         }
         composable(route = ACCOUNT_INFO_SCREEN) {
-            AccountInfoScreen(navController, accountViewModel)
+            AccountInfoScreen(navController, accountViewModel, context)
         }
         composable(route = HISTORY_SCREEN) {
             HistoryScreen(navController)
