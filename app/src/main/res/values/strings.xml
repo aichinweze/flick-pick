@@ -56,4 +56,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="no_history_message">You have not chosen any movies yet… Start picking!</string>
+    <string name="loading_search_results">Loading search results…</string>
 </resources>

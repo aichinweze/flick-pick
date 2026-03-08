@@ -140,7 +140,10 @@ fun AccountInfoScreen(
         content = { paddingValues ->
             if (screenState.value == SCREEN_UNINITIALISED) {
                 Text(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(100.dp)
+                        .fillMaxSize(),
                     text = stringResource(R.string.loading_screen),
                     fontSize = 45.sp,
                 )
