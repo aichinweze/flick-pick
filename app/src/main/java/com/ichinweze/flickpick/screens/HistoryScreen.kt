@@ -199,10 +199,7 @@ fun HistoryScreen(
                                 .padding(15.dp)
                         ) {
                             IconButton(
-                                onClick = {
-                                    historyViewModel.updateScreenState(SCREEN_UNINITIALISED)
-                                    historyViewModel.initialiseScreen()
-                                },
+                                onClick = { historyViewModel.updateScreenState(SCREEN_INITIALISED) },
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .padding(vertical = 5.dp, horizontal = 7.dp)
@@ -339,11 +336,11 @@ fun HistoryScreen(
                             val dialog: AlertDialog = builder.create()
                             dialog.show()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
                         modifier = Modifier
-                            .padding(15.dp)
+                            .padding(horizontal = 25.dp, vertical = 18.dp)
                             .fillMaxWidth()
-                            .weight(1.75f)
+                            .weight(1.1f)
                     ) {
                         Text(
                             text = stringResource(R.string.delete_from_history),

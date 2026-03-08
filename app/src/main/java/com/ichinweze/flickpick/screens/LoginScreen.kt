@@ -85,9 +85,11 @@ fun LoginScreen(
         }
     }
 
-    if (screenState.value == SCREEN_LOGIN_CHECK_DONE) {
-        Toast.makeText(context, "Sign In Success!", Toast.LENGTH_SHORT).show()
-        loginViewModel.updateScreenState(SCREEN_LOGIN_SUCCESS)
-        navController.navigate(DASHBOARD_SCREEN)
+    LaunchedEffect(screenState.value) {
+        if (screenState.value == SCREEN_LOGIN_CHECK_DONE) {
+            Toast.makeText(context, "Sign In Success!", Toast.LENGTH_SHORT).show()
+            loginViewModel.updateScreenState(SCREEN_LOGIN_SUCCESS)
+            navController.navigate(DASHBOARD_SCREEN)
+        }
     }
 }
