@@ -7,13 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Button
@@ -28,6 +21,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,48 +32,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
-import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
+import com.ichinweze.flickpick.screens.utils.AccountNavigationItem
 import com.ichinweze.flickpick.screens.utils.BASELINE_Q_SCREEN
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
-import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.screens.utils.HistoryNavigationItem
+import com.ichinweze.flickpick.screens.utils.HomeNavigationItem
 import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController) {
 
-    // TODO: Move State into a ViewModel
-    // TODO: Move common items to a Utils
-
-    val accountNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.account_nav_item),
-        navigationScreen = ACCOUNT_INFO_SCREEN,
-        selectedIcon = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person,
-        hasNews = false
+    val bottomNavItems = listOf(
+        AccountNavigationItem(),
+        HomeNavigationItem(),
+        HistoryNavigationItem()
     )
 
-    // TODO: Can have news if user needs to provide feedback
-    val historyNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.history_nav_item),
-        navigationScreen = HISTORY_SCREEN,
-        selectedIcon = Icons.Filled.Info,
-        unselectedIcon = Icons.Outlined.Info,
-        hasNews = false
-    )
-
-    val homeNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.home_nav_item),
-        navigationScreen = DASHBOARD_SCREEN,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-        hasNews = false
-    )
-
-    val bottomNavItems = listOf(accountNavigationItem, homeNavigationItem, historyNavigationItem)
-
-    val selectedState = remember { mutableIntStateOf(1) }
+    val selectedNavBarIdx = 1
 
     Scaffold(
         topBar = {
@@ -100,10 +70,9 @@ fun DashboardScreen(navController: NavController) {
             NavigationBar {
                 bottomNavItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = selectedState.intValue == index,
+                        selected = selectedNavBarIdx == index,
                         onClick = {
-                            if (selectedState.intValue != index) {
-                                selectedState.intValue = index
+                            if (selectedNavBarIdx != index) {
                                 navController.navigate(item.navigationScreen)
                             }
                         },
@@ -115,7 +84,7 @@ fun DashboardScreen(navController: NavController) {
                             }) {
                                 Icon(
                                     imageVector =
-                                        if (index == selectedState.intValue) {
+                                        if (index == selectedNavBarIdx) {
                                             item.selectedIcon
                                         } else item.unselectedIcon,
                                     contentDescription = item.title
@@ -166,7 +135,7 @@ fun DashboardScreen(navController: NavController) {
                 ) {
                     Text(
                         text = stringResource(R.string.dashboard_to_recommend),
-                        fontSize = 45.sp,
+                        fontSize = 25.sp,
                         textAlign = TextAlign.Center
                     )
                 }

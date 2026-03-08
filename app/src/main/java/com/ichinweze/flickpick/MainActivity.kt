@@ -15,6 +15,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.ichinweze.flickpick.repositiories.AccountRepository
 import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
@@ -33,16 +37,28 @@ import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
 import com.ichinweze.flickpick.viewmodels.AccountViewModel
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
+import com.ichinweze.flickpick.viewmodels.HistoryViewModel
 import com.ichinweze.flickpick.viewmodels.LoginViewModel
 import com.ichinweze.flickpick.viewmodels.RecommendViewModel
 
 class MainActivity : ComponentActivity() {
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        FirebaseApp.initializeApp(this)
+        auth = Firebase.auth
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val currentUser = auth.currentUser
+        val startDestination = if (currentUser != null) DASHBOARD_SCREEN else LOGIN_SCREEN
+
         setContent {
             Surface(modifier = Modifier.fillMaxSize()) {
-                AppNavigation()
+                AppNavigation(startDestination)
             }
         }
     }
@@ -61,34 +77,19 @@ fun GreetingPreview() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String) {
     val navController = rememberNavController()
-
-    // TODO: Start Destination to dashboard screen if logged in as user
 
     val context = LocalContext.current
 
     val csvRepository: CsvRepositoryImpl = CsvRepositoryImpl(context)
-    val loginRepository: LoginRepository = LoginRepository(context)
-    val baselineRepository: BaselineRepository = BaselineRepository(context)
-    val accountRepository: AccountRepository = AccountRepository(context)
 
     // Creation Extras for View Models
     val baselineVMCreationExtras = MutableCreationExtras().apply {
         set(BaselineViewModel.CSV_REPOSITORY_KEY, csvRepository)
-        set(BaselineViewModel.BASELINE_REPOSITORY_KEY, baselineRepository)
-        set(BaselineViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
     }
     val recommendVMCreationExtras = MutableCreationExtras().apply {
         set(RecommendViewModel.CSV_REPOSITORY_KEY, csvRepository)
-    }
-    val loginVMCreationExtras = MutableCreationExtras().apply {
-        set(LoginViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
-    }
-
-    val accountVMCreationExtras = MutableCreationExtras().apply {
-        set(AccountViewModel.LOGIN_REPOSITORY_KEY, loginRepository)
-        set(AccountViewModel.ACCOUNT_REPOSITORY_KEY, accountRepository)
     }
 
     // View Models
@@ -101,16 +102,16 @@ fun AppNavigation() {
         extras = recommendVMCreationExtras
     )
     val loginViewModel: LoginViewModel = viewModel(
-        factory = LoginViewModel.Factory,
-        extras = loginVMCreationExtras
+        factory = LoginViewModel.Factory
     )
     val accountViewModel: AccountViewModel = viewModel(
-        factory = AccountViewModel.Factory,
-        extras = accountVMCreationExtras
+        factory = AccountViewModel.Factory
+    )
+    val historyViewModel: HistoryViewModel = viewModel(
+        factory = HistoryViewModel.Factory
     )
 
-
-    NavHost(navController = navController, startDestination = LOGIN_SCREEN) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(LOGIN_SCREEN) {
             LoginScreen(navController, loginViewModel, context)
         }
@@ -118,10 +119,10 @@ fun AppNavigation() {
             DashboardScreen(navController)
         }
         composable(route = ACCOUNT_INFO_SCREEN) {
-            AccountInfoScreen(navController, accountViewModel)
+            AccountInfoScreen(navController, accountViewModel, context)
         }
         composable(route = HISTORY_SCREEN) {
-            HistoryScreen(navController)
+            HistoryScreen(navController, historyViewModel, context)
         }
         composable(route = BASELINE_Q_SCREEN) {
             BaselineQuestionScreen(navController, baselineViewModel, context)

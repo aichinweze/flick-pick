@@ -1,21 +1,24 @@
 package com.ichinweze.flickpick.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.ichinweze.flickpick.data.ScreenData.BaselineDetails
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
+import com.ichinweze.flickpick.data.ViewModelData.BASELINE_QUESTIONS_COLLECTION
+import com.ichinweze.flickpick.data.ViewModelData.QUESTIONS_COLLECTION
 import com.ichinweze.flickpick.data.ViewModelData.QuestionData
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISING
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
-import com.ichinweze.flickpick.repositiories.BaselineRepository
+import com.ichinweze.flickpick.data.firestore.BaselineQuestion
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
-import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.BASELINE_QUESTIONS_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.MOVIE_REGION_CSV
@@ -33,13 +36,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class BaselineViewModel(
-    val csvRepository: CsvRepositoryImpl,
-    val baselineRepository: BaselineRepository,
-    val loginRepository: LoginRepository
+    val csvRepository: CsvRepositoryImpl
 ) : ViewModel() {
+
+    private val firestoreDb = Firebase.firestore
+
+    private val auth = FirebaseAuth.getInstance()
 
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
+
+    private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
     private val questionList = mutableListOf<QuestionData>()
 
@@ -50,7 +57,7 @@ class BaselineViewModel(
 
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
 
-    private val userEmail = mutableStateOf("")
+    private var baselineQuestionResponses = mutableListOf<BaselineQuestion>()
 
     private val _checklistOptions: MutableStateFlow<List<ChecklistItem>> = MutableStateFlow(listOf())
     val checklistOptions = _checklistOptions.asStateFlow()
@@ -61,6 +68,8 @@ class BaselineViewModel(
     private val _currentQuestion: MutableStateFlow<String> = MutableStateFlow("")
     val currentQuestion = _currentQuestion.asStateFlow()
 
+    private val TAG: String = "BaselineViewModel: "
+
     // Read data from csv files and initialise parameters
     fun initialiseScreen() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -68,42 +77,31 @@ class BaselineViewModel(
                 println("BaselineViewModel: initialiseScreen: Starting process...")
                 updateScreenState(SCREEN_INITIALISING)
 
+                val currentUser = auth.currentUser
+
+                currentUser?.let { setAccountEmail(it.email.toString()) }
+
                 val listOfQuestions = csvRepository
                     .getCsvLines(BASELINE_QUESTIONS_CSV, false)
                     .map { mapRawLineToQuestionData(it) }
-
                 questionList.addAll(listOfQuestions)
-                println("BaselineViewModel: initialiseScreen: list of questions assigned to ViewModel: $questionList")
 
                 val genres = csvRepository
                     .getCsvLines(GENRE_LIST_CSV, false)
                     .map { mapRawLineToGenreData(it) }
                 val genreItems = genres.map { convertGenreToChecklistItem(it) }
-
                 genreChecklistItems.addAll(genreItems)
-                println("BaselineViewModel: initialiseScreen: genre checklist assigned to ViewModel: $genreChecklistItems")
 
                 val movieRegions = csvRepository
                     .getCsvLines(MOVIE_REGION_CSV, false)
                     .map{ mapRawLineToMovieRegionData(it) }
                 val movieRegionItems = movieRegions.map { convertMovieRegionToChecklistItem(it) }
-
-                // TODO: Get active email/user ID
-
-                val activeUserEmail = loginRepository.getActiveUserEmail()
-                userEmail.value = activeUserEmail
-
                 movieRegionChecklistItems.addAll(movieRegionItems)
-                println("BaselineViewModel: initialiseScreen: movie region checklist assigned to ViewModel: $movieRegionChecklistItems")
 
                 numberOfQuestions.intValue = listOfQuestions.size
-                println("BaselineViewModel: initialiseScreen: assigning size of questions to VM: ${numberOfQuestions.intValue}")
 
                 updateChecklistOptions(_currentQuestionIndex.value)
-                println("BaselineViewModel: initialiseScreen: getting initial set of checklist options: ${checklistOptions.value}")
-
                 updateCurrentQuestion(_currentQuestionIndex.value)
-                println("BaselineViewModel: initialiseScreen: assigned current question: ${_currentQuestion.value}")
 
                 _screenState.update { currentState -> SCREEN_INITIALISED }
                 println("BaselineViewModel: initialiseScreen: updating screen state to initialised: ${screenState.value}")
@@ -123,6 +121,10 @@ class BaselineViewModel(
         }
     }
 
+    fun setAccountEmail(newEmail: String) {
+        _email.update { current -> newEmail }
+    }
+
     fun updateChecklistOptions(currQIdx: Int) {
         val checklistOptions =
             when (currQIdx) {
@@ -131,13 +133,6 @@ class BaselineViewModel(
             }
 
         _checklistOptions.update { state -> checklistOptions }
-    }
-
-    fun setActiveUserEmail() {
-        viewModelScope.launch(Dispatchers.IO) {
-
-        }
-
     }
 
     fun persistChecklistState(currQIdx: Int) {
@@ -174,19 +169,6 @@ class BaselineViewModel(
         }
     }
 
-    fun persistBaselineQuestions() {
-        viewModelScope.launch(Dispatchers.IO) {
-            checklistResponseMap.forEach { (idx, response) ->
-                val baselineDetails = BaselineDetails(
-                    baselineQuestionIndex = idx,
-                    baselineResponses = response.responses
-                )
-
-                baselineRepository.upsertBaselineDetails(userEmail.value, baselineDetails)
-            }
-        }
-    }
-
     fun goForward() {
         _currentQuestionIndex.update { currentIdx ->
             val nextIdx = currentIdx + 1
@@ -205,12 +187,58 @@ class BaselineViewModel(
         _checklistOptions.update { current -> listOf() }
         _currentQuestionIndex.update { current -> 0 }
         _currentQuestion.update { current -> "" }
+
+        checklistResponseMap.clear()
+        questionList.clear()
+        genreChecklistItems.clear()
+        movieRegionChecklistItems.clear()
+        baselineQuestionResponses.clear()
     }
 
     fun updateResponseMap(currQIdx: Int, checklistItems: List<ChecklistItem>) {
         val responses = ChecklistResponse(responses = checklistItems.map { item -> item.index })
 
         checklistResponseMap.put(currQIdx, responses)
+    }
+
+    fun finaliseQuestionResponses() {
+        baselineQuestionResponses = checklistResponseMap.keys.map { key ->
+            val responseIndices = checklistResponseMap.getValue(key).responses
+            val question = questionList
+                .find { it -> it.index == key }
+                .let { questionData -> questionData?.question } ?: "Undefined Question"
+
+            val checklistItems =
+                when (key) {
+                    0    -> genreChecklistItems.filter { it -> responseIndices.contains(it.index) }
+                    else -> movieRegionChecklistItems.filter { it -> responseIndices.contains(it.index) }
+                }
+
+            val itemStrings = checklistItems.map { it -> it.checklistItem }
+
+            BaselineQuestion(questionIndex = key, question = question, responses = itemStrings)
+        }.toMutableList()
+    }
+
+    fun persistQuestionResponses() {
+        baselineQuestionResponses.forEach { response ->
+            val questionIndex = "Question_${response.questionIndex}"
+
+            firestoreDb
+                .collection(BASELINE_QUESTIONS_COLLECTION)
+                .document(_email.value)
+                .collection(QUESTIONS_COLLECTION)
+                .document(questionIndex)
+                .set(response)
+                .addOnSuccessListener {
+                    // Handle success (e.g., show a Toast message)
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to $BASELINE_QUESTIONS_COLLECTION/${_email.value}/questions")
+                }
+                .addOnFailureListener { e ->
+                    // Handle failure (e.g., log the error)
+                    Log.w(TAG, "Error writing document", e)
+                }
+        }
     }
 
     fun updateOptionStateAtIndex(index: Int, state: Boolean) {
@@ -227,16 +255,12 @@ class BaselineViewModel(
 
     companion object {
         val CSV_REPOSITORY_KEY = object : CreationExtras.Key<CsvRepositoryImpl> {}
-        val BASELINE_REPOSITORY_KEY = object : CreationExtras.Key<BaselineRepository> {}
-        val LOGIN_REPOSITORY_KEY = object : CreationExtras.Key<LoginRepository> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val csvRepository = this[CSV_REPOSITORY_KEY] as CsvRepositoryImpl
-                val baselineRepository = this[BASELINE_REPOSITORY_KEY] as BaselineRepository
-                val loginRepository = this[LOGIN_REPOSITORY_KEY] as LoginRepository
 
-                BaselineViewModel(csvRepository, baselineRepository, loginRepository)
+                BaselineViewModel(csvRepository)
             }
         }
     }

@@ -67,7 +67,6 @@ fun RecommendQuestionScreen(
     val currQuestionIdx = recommendViewModel.currentQuestionIndex.collectAsState()
     val currQuestionStr = recommendViewModel.currentQuestion.collectAsState()
     val checklistOptions = recommendViewModel.checklistOptions.collectAsState()
-    //val currQuestionIsOptional = recommendViewModel.currentQuestionIsOptional.collectAsState()
 
     val numberOfQuestions = recommendViewModel.getNumberOfQuestions()
 
@@ -297,26 +296,28 @@ fun RecommendQuestionScreen(
 
                     Text(
                         text = resultToReview.title,
-                        fontSize = 40.sp,
+                        fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1.5f)
                     )
+
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     if (imageUrl != "") {
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = stringResource(R.string.search_result_description),
-                            modifier = Modifier.weight(5f)
+                            modifier = Modifier.weight(4f)
                         )
                     } else {
                         Image(
                             painter = painterResource(R.drawable.unavailable_image),
-                            modifier = Modifier.weight(5f),
+                            modifier = Modifier.weight(4f),
                             contentDescription = stringResource(R.string.search_result_description)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Column(
                         modifier = Modifier
@@ -342,7 +343,7 @@ fun RecommendQuestionScreen(
                         text = resultToReview.overview,
                         fontSize = 20.sp,
                         modifier = Modifier
-                            .weight(2.5f)
+                            .weight(2.8f)
                             .verticalScroll(rememberScrollState())
                     )
 
@@ -350,7 +351,7 @@ fun RecommendQuestionScreen(
 
                     Row(
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(1.5f)
                             .fillMaxWidth()
                             .padding(10.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -360,7 +361,7 @@ fun RecommendQuestionScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.back),
-                                fontSize = 20.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
@@ -373,7 +374,7 @@ fun RecommendQuestionScreen(
                         ) {
                             Text(
                                 text = stringResource(R.string.movie_selection),
-                                fontSize = 20.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }

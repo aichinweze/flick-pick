@@ -1,23 +1,24 @@
 package com.ichinweze.flickpick.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,67 +26,67 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
-import com.ichinweze.flickpick.data.ScreenData.BottomNavigationItem
-import com.ichinweze.flickpick.screens.utils.ACCOUNT_INFO_SCREEN
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_EDIT_MODE
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGOUT_SUCCESS
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
+import com.ichinweze.flickpick.screens.utils.AccountNavigationItem
 import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
-import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
+import com.ichinweze.flickpick.screens.utils.HistoryNavigationItem
+import com.ichinweze.flickpick.screens.utils.HomeNavigationItem
+import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.viewmodels.AccountViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountInfoScreen(navController: NavController, accountViewModel: AccountViewModel) {
-    // TODO: Move State into a ViewModel
-    // TODO: Move common items to a Utils
-
-    val accountNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.account_nav_item),
-        navigationScreen = ACCOUNT_INFO_SCREEN,
-        selectedIcon = Icons.Filled.Person,
-        unselectedIcon = Icons.Outlined.Person,
-        hasNews = false
+fun AccountInfoScreen(
+    navController: NavController,
+    accountViewModel: AccountViewModel,
+    context: Context
+) {
+    val bottomNavItems = listOf(
+        AccountNavigationItem(),
+        HomeNavigationItem(),
+        HistoryNavigationItem()
     )
 
-    // TODO: Can have news if user needs to provide feedback
-    val historyNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.history_nav_item),
-        navigationScreen = HISTORY_SCREEN,
-        selectedIcon = Icons.Filled.Info,
-        unselectedIcon = Icons.Outlined.Info,
-        hasNews = true
-    )
+    val selectedNavBarIdx = 0
 
-    val homeNavigationItem = BottomNavigationItem(
-        title = stringResource(R.string.home_nav_item),
-        navigationScreen = DASHBOARD_SCREEN,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-        hasNews = false
-    )
-
-    val bottomNavItems = listOf(accountNavigationItem, homeNavigationItem, historyNavigationItem)
-
-    val selectedState = remember { mutableIntStateOf(0) }
-
-    accountViewModel.initialiseScreen()
+    LaunchedEffect(Unit) { accountViewModel.initialiseScreen() }
 
     val accountName = accountViewModel.name.collectAsState()
     val accountEmail = accountViewModel.email.collectAsState()
     val accountAge = accountViewModel.age.collectAsState()
+    val baselineQuestions = accountViewModel.baselineQuestions.collectAsState()
+
+    val screenState = accountViewModel.screenState.collectAsState()
+
+    val ageError = stringResource(R.string.age_error)
+
+    if (screenState.value == SCREEN_LOGOUT_SUCCESS) {
+        accountViewModel.resetScreen()
+
+        navController.navigate(LOGIN_SCREEN) {
+            popUpTo(LOGIN_SCREEN) { inclusive = true }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -99,28 +100,20 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Red,
                     titleContentColor = Color.White
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.ArrowBack,
-                            contentDescription = stringResource(R.string.arrow_back)
-                        )
-                    }
-                }
+                )
             )
         },
         bottomBar = {
             NavigationBar {
                 bottomNavItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        selected = selectedState.intValue == index,
+                        selected = selectedNavBarIdx == index,
                         onClick = {
                             // Pop up to home (dashboard) or go to history screen
-                            if (selectedState.intValue != index) {
-                                selectedState.intValue = index
-                                if (index == 1) navController.popBackStack()
-                                else navController.navigate(item.navigationScreen) {
+                            if (selectedNavBarIdx != index) {
+                                accountViewModel.resetScreen()
+
+                                navController.navigate(item.navigationScreen) {
                                     popUpTo(DASHBOARD_SCREEN) { inclusive = false }
                                 }
                             }
@@ -133,7 +126,7 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
                             }) {
                                 Icon(
                                     imageVector =
-                                    if (index == selectedState.intValue) {
+                                    if (index == selectedNavBarIdx) {
                                         item.selectedIcon
                                     } else item.unselectedIcon,
                                     contentDescription = item.title
@@ -145,69 +138,209 @@ fun AccountInfoScreen(navController: NavController, accountViewModel: AccountVie
             }
         },
         content = { paddingValues ->
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Name
-                Row(
-                    modifier = Modifier.fillMaxWidth()
+            if (screenState.value == SCREEN_UNINITIALISED) {
+                Text(
+                    modifier = Modifier.fillMaxSize(),
+                    text = stringResource(R.string.loading_screen),
+                    fontSize = 45.sp,
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Name",
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Left
-                    )
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                                .height(50.dp),
+                            horizontalArrangement = Arrangement.Absolute.Right
+                        )  {
+                            if (screenState.value == SCREEN_EDIT_MODE) {
+                                Button(
+                                    onClick = {
+                                        if (accountAge.value.toString().matches("^\\d+$".toRegex())) {
+                                            accountViewModel.updateUserInformationInFirestore()
+                                            accountViewModel.updateScreenState(SCREEN_INITIALISED)
+                                        } else {
+                                            Toast.makeText(context, ageError,Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                                    modifier = Modifier.fillMaxHeight()
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.save),
+                                        fontSize = 15.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        accountViewModel.setPreviousUserDetailsToTrack()
+                                        accountViewModel.updateScreenState(SCREEN_EDIT_MODE)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .padding(vertical = 5.dp, horizontal = 7.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Edit,
+                                        contentDescription = stringResource(R.string.settings),
+                                        modifier = Modifier.fillMaxSize(),
+                                        tint = Color.Black
+                                    )
+                                }
+                            }
+                        }
 
-                    Text(
-                        text = accountName.value,
-                        fontSize = 22.sp,
-                        textAlign = TextAlign.Right
-                    )
-                }
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
 
-                // Email
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                )  {
-                    Text(
-                        text = "Email",
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Left
-                    )
+                    item {
+                        // Email
+                        Row(modifier = Modifier.fillMaxWidth().padding(15.dp))  {
+                            Text(
+                                text = stringResource(R.string.email),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Left,
+                                fontWeight = FontWeight.Bold
+                            )
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
 
-                    Text(
-                        text = accountEmail.value,
-                        fontSize = 22.sp,
-                        textAlign = TextAlign.Right
-                    )
-                }
+                            Text(
+                                text = accountEmail.value,
+                                fontSize = 22.sp,
+                                textAlign = TextAlign.Right
+                            )
+                        }
 
-                // Age
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                )  {
-                    Text(
-                        text = "Age",
-                        fontSize = 25.sp,
-                        textAlign = TextAlign.Left
-                    )
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    item {
+                        // Name
+                        Row(modifier = Modifier.fillMaxWidth().padding(15.dp)) {
+                            Text(
+                                text = stringResource(R.string.name),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Left,
+                                fontWeight = FontWeight.Bold
+                            )
 
-                    Text(
-                        text = if (accountAge.value != -1) accountAge.value.toString() else "N/A",
-                        fontSize = 22.sp,
-                        textAlign = TextAlign.Right
-                    )
+                            Spacer(modifier = Modifier.width(15.dp))
+
+                            if (screenState.value == SCREEN_EDIT_MODE) {
+                                TextField(
+                                    value = accountName.value,
+                                    onValueChange = { accountViewModel.setAccountName(it) },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = accountName.value,
+                                    fontSize = 22.sp,
+                                    textAlign = TextAlign.Right
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
+
+                    item {
+                        // Age
+                        Row(modifier = Modifier.fillMaxWidth().padding(15.dp))  {
+                            Text(
+                                text = stringResource(R.string.age),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Left,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            if (screenState.value == SCREEN_EDIT_MODE) {
+                                TextField(
+                                    value = accountAge.value.toString(),
+                                    onValueChange = { it -> accountViewModel.setAccountAge(it) },
+                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = accountAge.value,
+                                    fontSize = 22.sp,
+                                    textAlign = TextAlign.Right
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(15.dp))
+                    }
+
+                    item {
+                        // Baseline Questions
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(15.dp),
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = stringResource(R.string.baseline_q),
+                                fontSize = 25.sp,
+                                textAlign = TextAlign.Left,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                baselineQuestions.value
+                                    .sortedBy { it -> it.questionIndex }
+                                    .forEach { questionItem ->
+                                        Text(
+                                            text = questionItem.question!!,
+                                            fontSize = 20.sp,
+                                            textAlign = TextAlign.Left,
+                                            fontStyle = FontStyle.Italic,
+                                            maxLines = 2
+                                        )
+
+                                        Spacer(modifier = Modifier.height(5.dp))
+
+                                        Text(
+                                            text = questionItem.responses!!.joinToString(", "),
+                                            fontSize = 16.sp,
+                                            textAlign = TextAlign.Left
+                                        )
+
+                                        Spacer(modifier = Modifier.height(20.dp))
+                                    }
+                            }
+                        }
+                    }
+
+                    item {
+                        Button(
+                            onClick = { accountViewModel.signOutUser(context) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            modifier = Modifier.padding(horizontal = 20.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.sign_out),
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
                 }
             }
         }

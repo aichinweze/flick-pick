@@ -1,5 +1,6 @@
 package com.ichinweze.flickpick.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,11 +8,15 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.firestore
 import com.ichinweze.flickpick.data.ApiData.MovieApiResponseData
 import com.ichinweze.flickpick.data.ApiData.MovieGenreResponseData
 import com.ichinweze.flickpick.data.ApiData.MoviePageResult
 import com.ichinweze.flickpick.data.ViewModelData.AUTH_TOKEN
 import com.ichinweze.flickpick.data.ViewModelData.BASE_URL
+import com.ichinweze.flickpick.data.ViewModelData.MOVIE_DETAILS_COLLECTION
 import com.ichinweze.flickpick.data.ViewModelData.MovieQualityData
 import com.ichinweze.flickpick.data.ViewModelData.MovieRegionData
 import com.ichinweze.flickpick.data.ViewModelData.ProcessedResult
@@ -23,6 +28,8 @@ import com.ichinweze.flickpick.data.ViewModelData.SCREEN_NO_RESULTS
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_REVIEW_SELECTION
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
 import com.ichinweze.flickpick.data.ViewModelData.TimeBoundData
+import com.ichinweze.flickpick.data.ViewModelData.WATCH_HISTORY_COLLECTION
+import com.ichinweze.flickpick.data.firestore.SelectedMovieDetails
 import com.ichinweze.flickpick.interfaces.MovieApiService
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
 import com.ichinweze.flickpick.repositiories.utils.RepositoryUtils.GENRE_LIST_CSV
@@ -54,6 +61,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import kotlin.collections.mutableMapOf
 
 class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
+
+    private val firestoreDb = Firebase.firestore
+
+    private val auth = FirebaseAuth.getInstance()
+
+    private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
@@ -100,6 +113,8 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     private val qualityChecklistItems = mutableListOf<ChecklistItem>()
     private val runtimeChecklistItems = mutableListOf<ChecklistItem>()
 
+    private val TAG: String = "RecommendViewModel: "
+
     // TODO: Separate out API request to a separate screen/view model??
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL) // Can be any valid base URL
@@ -114,6 +129,10 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
             if (_screenState.value == SCREEN_UNINITIALISED) {
                 println("RecommendViewModel: initialiseScreen: Starting process...")
                 updateScreenState(SCREEN_INITIALISING)
+
+                val currentUser = auth.currentUser
+
+                currentUser?.let { setAccountEmail(it.email.toString()) }
 
                 val listOfQuestions = csvRepository
                     .getCsvLines(RECOMMEND_QUESTIONS_CSV, false)
@@ -168,6 +187,10 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
     fun getNumberOfQuestions(): Int {
         return numberOfQuestions.intValue
+    }
+
+    fun setAccountEmail(newEmail: String) {
+        _email.update { current -> newEmail }
     }
 
     fun updateScreenState(newState: String) {
@@ -477,9 +500,35 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun selectMovie() {
-        // TODO: Persist information acquired from questionnaire
-        // TODO: When questions are done, should see button to return to dashboard
+        persistSelectedMovie()
         resetScreen()
+    }
+
+    fun persistSelectedMovie() {
+        val selectedMovie = _movieToReview.value.first()
+
+        val selectedMovieForFirestore = SelectedMovieDetails(
+            movieId = selectedMovie.id,
+            movieTitle = selectedMovie.title,
+            posterPath = selectedMovie.posterPath,
+            releaseDate = selectedMovie.releaseDate,
+            userRating = null
+        )
+
+        firestoreDb
+            .collection(WATCH_HISTORY_COLLECTION)
+            .document(_email.value)
+            .collection(MOVIE_DETAILS_COLLECTION)
+            .document(selectedMovie.title)
+            .set(selectedMovieForFirestore)
+            .addOnSuccessListener {
+                // Handle success (e.g., show a Toast message)
+                Log.d(TAG, "DocumentSnapshot successfully written with ID: ${selectedMovie.title} to $WATCH_HISTORY_COLLECTION/${_email.value}/movie_details")
+            }
+            .addOnFailureListener { e ->
+                // Handle failure (e.g., log the error)
+                Log.w(TAG, "Error writing document", e)
+            }
     }
 
     fun resetScreen() {

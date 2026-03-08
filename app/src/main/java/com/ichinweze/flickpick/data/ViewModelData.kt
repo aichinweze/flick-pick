@@ -9,12 +9,17 @@ object ViewModelData {
     const val SCREEN_LOADING_RESULTS = "screen_loading_results"
     const val SCREEN_LOADED_RESULTS = "screen_loaded_results"
     const val SCREEN_REVIEW_SELECTION = "screen_review_selection"
+    const val SCREEN_REVIEW_SELECTION_EDIT = "screen_review_selection_edit"
     const val SCREEN_NO_RESULTS = "screen_no_results"
+    const val SCREEN_EMPTY_HISTORY = "screen_empty_history"
+
+    const val SCREEN_EDIT_MODE = "screen_edit_mode"
 
     const val SCREEN_LOGIN = "screen_login"
     const val SCREEN_LOGIN_CHECKING_CREDENTIALS = "screen_login_checking_credentials"
     const val SCREEN_LOGIN_CHECK_DONE = "screen_login_check_done"
     const val SCREEN_LOGIN_SUCCESS = "screen_login_success"
+    const val SCREEN_LOGOUT_SUCCESS = "screen_logout_success"
 
     const val SCREEN_REGISTER = "screen_register"
     const val SCREEN_REGISTER_CHECKING_EMAIL = "screen_register_checking_email"
@@ -31,9 +36,19 @@ object ViewModelData {
     const val VALID_ERROR_INVALID_EMAIL = "Please provide a valid email."
     const val CHECKS_PASSED = "checks_passed"
 
+    const val UNINITIALISED_NAME = "Please provide name"
+    const val UNINITIALISED_AGE = "Please provide age"
+
     const val BASE_URL = "https://api.themoviedb.org/3/"
+    const val IMAGE_URL = "https://image.tmdb.org/t/p/w300"
 
     const val AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MDBmZGZlNGY2OWY3MWY5YzFkNzJiNTAwZDBmMDE3OSIsIm5iZiI6MTc1OTU5OTE0OC4yNjIsInN1YiI6IjY4ZTE1YTJjYTIyNjYyN2FjZjI1YWIzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ijkX6Eg1pTo-lZUChSjigXDTbl7ei33bUNtzqu6mFOA"
+
+    const val ACCOUNT_DETAILS_COLLECTION = "account_details"
+    const val BASELINE_QUESTIONS_COLLECTION = "baseline_questions"
+    const val QUESTIONS_COLLECTION = "questions"
+    const val WATCH_HISTORY_COLLECTION = "watch_history"
+    const val MOVIE_DETAILS_COLLECTION = "movie_details"
 
     data class QuestionData(
         val index: Int,
