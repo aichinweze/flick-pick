@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -151,7 +152,7 @@ fun TextAndButtonRow(
 
         Button(
             onClick = { onClickFn(onClickParam) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
         ) {
             Text(text = buttonText, fontSize = 30.sp)
         }

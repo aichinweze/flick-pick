@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -71,8 +72,8 @@ fun BaselineQuestionScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Red,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
@@ -98,7 +99,7 @@ fun BaselineQuestionScreen(
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = Color.Magenta,
                     )
 
@@ -181,7 +182,7 @@ fun BaselineQuestionScreen(
                                 onClick = {
                                     baselineViewModel.goBack()
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                                 modifier = Modifier.padding(horizontal = 30.dp)
                             ) {
                                 Text(
@@ -221,7 +222,7 @@ fun BaselineQuestionScreen(
                                     }
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                             modifier = Modifier.padding(horizontal = 30.dp)
                         ) {
                             val buttonText = if (currQuestionIdx.value == numberOfQuestions - 1) {

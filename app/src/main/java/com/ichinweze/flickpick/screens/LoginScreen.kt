@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +18,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +49,7 @@ fun LoginScreen(
         ) {
             Text(
                 text = stringResource(R.string.login_welcome),
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 50.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -60,7 +60,7 @@ fun LoginScreen(
 
             Text(
                 text = stringResource(R.string.please_sign_in),
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 35.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
