@@ -22,6 +22,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -98,8 +99,8 @@ fun AccountInfoScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Red,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
@@ -174,7 +175,7 @@ fun AccountInfoScreen(
                                             Toast.makeText(context, ageError,Toast.LENGTH_SHORT).show()
                                         }
                                     },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                                     modifier = Modifier.fillMaxHeight()
                                 ) {
                                     Text(
@@ -334,7 +335,7 @@ fun AccountInfoScreen(
                     item {
                         Button(
                             onClick = { accountViewModel.signOutUser(context) },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                             modifier = Modifier.padding(horizontal = 20.dp)
                         ) {
                             Text(

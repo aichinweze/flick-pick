@@ -48,6 +48,8 @@ class BaselineViewModel(
 
     private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
+    private val _uid: MutableStateFlow<String> = MutableStateFlow("")
+
     private val questionList = mutableListOf<QuestionData>()
 
     private val genreChecklistItems = mutableListOf<ChecklistItem>()
@@ -79,7 +81,10 @@ class BaselineViewModel(
 
                 val currentUser = auth.currentUser
 
-                currentUser?.let { setAccountEmail(it.email.toString()) }
+                currentUser?.let {
+                    setAccountEmail(it.email.toString())
+                    setAccountUid(it.uid)
+                }
 
                 val listOfQuestions = csvRepository
                     .getCsvLines(BASELINE_QUESTIONS_CSV, false)
@@ -123,6 +128,10 @@ class BaselineViewModel(
 
     fun setAccountEmail(newEmail: String) {
         _email.update { current -> newEmail }
+    }
+
+    fun setAccountUid(uid: String) {
+        _uid.update { current -> uid }
     }
 
     fun updateChecklistOptions(currQIdx: Int) {
@@ -226,13 +235,13 @@ class BaselineViewModel(
 
             firestoreDb
                 .collection(BASELINE_QUESTIONS_COLLECTION)
-                .document(_email.value)
+                .document(_uid.value)
                 .collection(QUESTIONS_COLLECTION)
                 .document(questionIndex)
                 .set(response)
                 .addOnSuccessListener {
                     // Handle success (e.g., show a Toast message)
-                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to $BASELINE_QUESTIONS_COLLECTION/${_email.value}/questions")
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: $questionIndex to $BASELINE_QUESTIONS_COLLECTION/${_uid.value}/questions")
                 }
                 .addOnFailureListener { e ->
                     // Handle failure (e.g., log the error)

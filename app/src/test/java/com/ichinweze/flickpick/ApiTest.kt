@@ -20,7 +20,7 @@ class ApiTest {
 
     //val testUrl = "discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&vote_average.gte=7&vote_average.lte=8"
     val testUrl = "discover/movie?include_adult=false&include_video=false&language=en-US&sort_by=popularity.desc&with_genres=28&with_origin_country=US&release_date.gte=2000-01-01&vote_average.gte=6&vote_average.lte=7&with_runtime.gte=100"
-    val authToken: String = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MDBmZGZlNGY2OWY3MWY5YzFkNzJiNTAwZDBmMDE3OSIsIm5iZiI6MTc1OTU5OTE0OC4yNjIsInN1YiI6IjY4ZTE1YTJjYTIyNjYyN2FjZjI1YWIzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ijkX6Eg1pTo-lZUChSjigXDTbl7ei33bUNtzqu6mFOA"
+    val authToken: String = "Bearer ${BuildConfig.TMDB_AUTH_TOKEN}"
 
     @Test
     fun getMovieResponseFromApi() {

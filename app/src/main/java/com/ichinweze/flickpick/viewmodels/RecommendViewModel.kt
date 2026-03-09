@@ -68,6 +68,8 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
     private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
+    private val _uid: MutableStateFlow<String> = MutableStateFlow("")
+
     private val _screenState: MutableStateFlow<String> = MutableStateFlow(SCREEN_UNINITIALISED)
     val screenState = _screenState.asStateFlow()
 
@@ -113,9 +115,8 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     private val qualityChecklistItems = mutableListOf<ChecklistItem>()
     private val runtimeChecklistItems = mutableListOf<ChecklistItem>()
 
-    private val TAG: String = "RecommendViewModel: "
+    private val TAG: String = "RecommendViewModel"
 
-    // TODO: Separate out API request to a separate screen/view model??
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL) // Can be any valid base URL
         .addConverterFactory(GsonConverterFactory.create()) // Or your preferred converter
@@ -127,12 +128,15 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     fun initialiseScreen() {
         viewModelScope.launch(Dispatchers.IO) {
             if (_screenState.value == SCREEN_UNINITIALISED) {
-                println("RecommendViewModel: initialiseScreen: Starting process...")
+                Log.i(TAG, "initialiseScreen: Starting process...")
                 updateScreenState(SCREEN_INITIALISING)
 
                 val currentUser = auth.currentUser
 
-                currentUser?.let { setAccountEmail(it.email.toString()) }
+                currentUser?.let {
+                    setAccountEmail(it.email.toString())
+                    setAccountUid(it.uid)
+                }
 
                 val listOfQuestions = csvRepository
                     .getCsvLines(RECOMMEND_QUESTIONS_CSV, false)
@@ -180,7 +184,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
                 populateGenreIdMap()
 
                 _screenState.update { currentState -> SCREEN_INITIALISED }
-                println("RecommendViewModel: initialiseScreen: updating screen state to initialised: ${screenState.value}")
+                Log.i(TAG, "initialiseScreen: updating screen state to initialised: ${screenState.value}")
             }
         }
     }
@@ -191,6 +195,10 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
     fun setAccountEmail(newEmail: String) {
         _email.update { current -> newEmail }
+    }
+
+    fun setAccountUid(uid: String) {
+        _uid.update { current -> uid }
     }
 
     fun updateScreenState(newState: String) {
@@ -322,18 +330,17 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
                                         }
                                 genreIdMap.putAll(genreChecklistMap)
                             } else {
-                                // TODO: Better handling
-                                println("Recommend View Model: populateGenreIdMap: Response body is empty")
+                                // TODO: More robust handling
+                                Log.i(TAG, "populateGenreIdMap: Response body is empty")
                             }
                         } else {
-                            // TODO: Handle API error
-                            println("Recommend View Model: populateGenreIdMap: Request threw an error")
+                            // TODO: More robust handling
+                            Log.i(TAG, "populateGenreIdMap: Request threw an error")
                         }
                     }
 
                     override fun onFailure(call: Call<MovieGenreResponseData>, t: Throwable) {
                         throw(t)
-                        // TODO: Add better handling
                     }
                 })
 
@@ -437,7 +444,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
         for (page in pageRange) {
             val searchUrl = "$discoverPrefix&page=$page$withGenres$withRegion$withReleasePeriod$withQuality$withRuntime"
-            println("searchMovieApiForResults: page search URL: $searchUrl")
+            Log.i(TAG, "searchMovieApiForResults: page search URL: $searchUrl")
 
             viewModelScope.launch(Dispatchers.IO) { movieApiService
                 .getMovieApiResponse(AUTH_TOKEN, urlWithSearchParams = searchUrl)
@@ -459,23 +466,23 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
                                 if (page == pageRange.last()) {
                                     if (responseBody.totalResults == 0) {
                                         updateScreenState(SCREEN_NO_RESULTS)
-                                        print("Recommend View Model: searchMovieApiForResults: No results, reflecting this on the screen...")
+                                        Log.i(TAG, "searchMovieApiForResults: No results, reflecting this on the screen...")
                                     } else {
                                         updateScreenState(SCREEN_LOADED_RESULTS)
-                                        print("Recommend View Model: searchMovieApiForResults: Final iteration at page $page...")
+                                        Log.i(TAG, "searchMovieApiForResults: Final iteration at page $page...")
                                     }
                                 }
 
-                                println("Recommend View Model: searchMovieApiForResults: acquired results: $results")
-                                println("Recommend View Model: searchMovieApiForResults: updated list: ${_searchResults.value}")
-                                println("Recommend View Model: searchMovieApiForResults: total pages = ${responseBody.totalPages}, total results = ${responseBody.totalResults}")
+                                Log.i(TAG, "searchMovieApiForResults: acquired results: $results")
+                                Log.i(TAG, "searchMovieApiForResults: updated list: ${_searchResults.value}")
+                                Log.i(TAG, "searchMovieApiForResults: total pages = ${responseBody.totalPages}, total results = ${responseBody.totalResults}")
                             } else {
-                                // TODO: Better handling
-                                println("Recommend View Model: searchMovieApiForResults: Response body is empty")
+                                // TODO: More robust handling
+                                Log.i(TAG, "searchMovieApiForResults: Response body is empty")
                             }
                         } else {
-                            // TODO: Handle API error
-                            println("Recommend View Model: searchMovieApiForResults: Request threw an error")
+                            // TODO: More robust handling
+                            Log.i(TAG, "searchMovieApiForResults: Request threw an error")
                         }
                     }
 
@@ -517,13 +524,13 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
         firestoreDb
             .collection(WATCH_HISTORY_COLLECTION)
-            .document(_email.value)
+            .document(_uid.value)
             .collection(MOVIE_DETAILS_COLLECTION)
             .document(selectedMovie.title)
             .set(selectedMovieForFirestore)
             .addOnSuccessListener {
                 // Handle success (e.g., show a Toast message)
-                Log.d(TAG, "DocumentSnapshot successfully written with ID: ${selectedMovie.title} to $WATCH_HISTORY_COLLECTION/${_email.value}/movie_details")
+                Log.d(TAG, "DocumentSnapshot successfully written with ID: ${selectedMovie.title} to $WATCH_HISTORY_COLLECTION/${_uid.value}/movie_details")
             }
             .addOnFailureListener { e ->
                 // Handle failure (e.g., log the error)

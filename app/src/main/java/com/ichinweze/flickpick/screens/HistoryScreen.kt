@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -26,6 +25,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -105,8 +105,8 @@ fun HistoryScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Red,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
         },
@@ -180,7 +180,7 @@ fun HistoryScreen(
                     if (screenState.value == SCREEN_REVIEW_SELECTION_EDIT) {
                         Button(
                             onClick = { historyViewModel.updateMovieEntry() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(5.dp)
@@ -302,9 +302,9 @@ fun HistoryScreen(
                                         value = sliderPosition.value,
                                         onValueChange = { historyViewModel.setSliderPosition(it) },
                                         colors = SliderDefaults.colors(
-                                            thumbColor = Color.Red,
-                                            activeTrackColor = Color.Red,
-                                            inactiveTrackColor = Color.Magenta
+                                            thumbColor = MaterialTheme.colorScheme.primary,
+                                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                                            inactiveTrackColor = Color.Red
                                         ),
                                         steps = 100,
                                         valueRange = 0f..100f,
@@ -336,7 +336,7 @@ fun HistoryScreen(
                             val dialog: AlertDialog = builder.create()
                             dialog.show()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         modifier = Modifier
                             .padding(horizontal = 25.dp, vertical = 18.dp)
                             .fillMaxWidth()
@@ -440,7 +440,7 @@ fun HistoryScreen(
                                                 text = stringResource(R.string.please_provide_rating),
                                                 fontSize = 14.sp,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color.Red
+                                                color = MaterialTheme.colorScheme.primary
                                             )
                                         } else {
                                             Text(

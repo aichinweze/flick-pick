@@ -26,6 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -90,8 +91,8 @@ fun RecommendQuestionScreen(
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Red,
-                    titleContentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
@@ -170,7 +171,7 @@ fun RecommendQuestionScreen(
                         if (currQuestionIdx.value > 0) {
                             Button(
                                 onClick = { recommendViewModel.goBack() },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                                 modifier = Modifier.padding(horizontal = 30.dp)
                             ) {
                                 Text(
@@ -202,7 +203,7 @@ fun RecommendQuestionScreen(
                                     }
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                             modifier = Modifier.padding(horizontal = 30.dp)
                         ) {
                             val buttonText =
@@ -231,7 +232,7 @@ fun RecommendQuestionScreen(
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = Color.Magenta,
                     )
 

@@ -32,6 +32,7 @@ import com.ichinweze.flickpick.screens.utils.DASHBOARD_SCREEN
 import com.ichinweze.flickpick.screens.utils.HISTORY_SCREEN
 import com.ichinweze.flickpick.screens.utils.LOGIN_SCREEN
 import com.ichinweze.flickpick.screens.utils.RECOMMEND_Q_SCREEN
+import com.ichinweze.flickpick.ui.theme.FlickPickTheme
 import com.ichinweze.flickpick.viewmodels.AccountViewModel
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
 import com.ichinweze.flickpick.viewmodels.HistoryViewModel
@@ -50,8 +51,10 @@ class MainActivity : ComponentActivity() {
         val startDestination = if (currentUser != null) DASHBOARD_SCREEN else LOGIN_SCREEN
 
         setContent {
-            Surface(modifier = Modifier.fillMaxSize()) {
-                AppNavigation(startDestination)
+            FlickPickTheme(dynamicColor = false) {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    AppNavigation(startDestination)
+                }
             }
         }
     }
