@@ -102,6 +102,7 @@ class AccountViewModel(): ViewModel() {
                 } else {
                     Log.d(TAG, "No such document")
                 }
+                updateScreenState(SCREEN_INITIALISED)
             }
             .addOnFailureListener { exception ->
                 Log.d(TAG, "get failed with ", exception)

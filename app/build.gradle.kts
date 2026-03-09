@@ -14,12 +14,24 @@ android {
 
     defaultConfig {
         applicationId = "com.ichinweze.flickpick"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "TMDB_AUTH_TOKEN",
+            "\"${findProperty("TMDB_AUTH_TOKEN") ?: ""}\""
+        )
+
+        buildConfigField(
+            "String",
+            "WEB_CLIENT_ID",
+            "\"${findProperty("WEB_CLIENT_ID") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -40,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     sourceSets {

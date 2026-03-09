@@ -19,10 +19,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
-import com.ichinweze.flickpick.repositiories.AccountRepository
-import com.ichinweze.flickpick.repositiories.BaselineRepository
 import com.ichinweze.flickpick.repositiories.CsvRepositoryImpl
-import com.ichinweze.flickpick.repositiories.LoginRepository
 import com.ichinweze.flickpick.screens.AccountInfoScreen
 import com.ichinweze.flickpick.screens.BaselineQuestionScreen
 import com.ichinweze.flickpick.screens.DashboardScreen
@@ -49,10 +46,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         FirebaseApp.initializeApp(this)
         auth = Firebase.auth
-    }
-
-    override fun onStart() {
-        super.onStart()
         val currentUser = auth.currentUser
         val startDestination = if (currentUser != null) DASHBOARD_SCREEN else LOGIN_SCREEN
 

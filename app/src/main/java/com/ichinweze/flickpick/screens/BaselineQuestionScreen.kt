@@ -5,8 +5,10 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_INITIALISED
+import com.ichinweze.flickpick.data.ViewModelData.SCREEN_UNINITIALISED
 import com.ichinweze.flickpick.screens.utils.QuestionWithIndexAndContent
 import com.ichinweze.flickpick.viewmodels.BaselineViewModel
 
@@ -84,7 +88,30 @@ fun BaselineQuestionScreen(
             )
         },
         content = { paddingValues ->
-            if (screenState.value == SCREEN_INITIALISED) {
+            if (screenState.value == SCREEN_UNINITIALISED) {
+                Column(
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(100.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = Color.Red,
+                        trackColor = Color.Magenta,
+                    )
+
+                    Spacer(modifier = Modifier.height(15.dp))
+
+                    Text(
+                        text = stringResource(R.string.loading_screen),
+                        fontSize = 25.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            else {
                 Column(
                     modifier = Modifier
                         .padding(paddingValues)

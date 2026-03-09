@@ -51,13 +51,9 @@ class HistoryViewModel(): ViewModel() {
 
             val currentUser = auth.currentUser
 
-            currentUser?.let {
-                setAccountEmail(it.email.toString())
-            }
+            currentUser?.let { setAccountEmail(it.email.toString()) }
 
             getPreviouslySelectedMovies()
-
-            _screenState.update { currentState -> SCREEN_INITIALISED }
         }
     }
 
@@ -90,6 +86,7 @@ class HistoryViewModel(): ViewModel() {
                                 .sortedBy { it -> it.movieTitle }
 
                             _previouslySelectedMovies.update { currentList -> selectedMovies }
+                            updateScreenState(SCREEN_INITIALISED)
                         }
                         .addOnFailureListener { exception ->
                             Log.d(TAG, "Error getting documents: ", exception)
@@ -172,7 +169,6 @@ class HistoryViewModel(): ViewModel() {
             .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
 
         getPreviouslySelectedMovies()
-        _screenState.update { state -> SCREEN_INITIALISED }
     }
 
     fun resetScreen() {

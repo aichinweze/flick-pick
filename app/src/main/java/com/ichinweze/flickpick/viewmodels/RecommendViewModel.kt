@@ -93,11 +93,11 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
 
     private val numberOfSearchPages: Int = 5
 
-    private val GENRE_QUESTION_INDEX: Int = 0
-    private val REGION_QUESTION_INDEX: Int = 1
+    private val genreQuestionIndex: Int = 0
+    private val regionQuestionIndex: Int = 1
     private val decadeQuestionIndex: Int = 2
     private val qualityQuestionIndex: Int = 3
-    private val RUNTIME_QUESTION_INDEX: Int = 4
+    private val runtimeQuestionIndex: Int = 4
 
     private val checklistResponseMap = mutableMapOf<Int, ChecklistResponse>()
     private val genreIdMap = mutableMapOf<String, Int>()
@@ -341,7 +341,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructGenreSearchParameter(): String {
-        val genreChecklistResponse = checklistResponseMap.getValue(0).responses.first()
+        val genreChecklistResponse = checklistResponseMap.getValue(genreQuestionIndex).responses.first()
         val genreValue = genreChecklistItems
             .find { item -> item.index == genreChecklistResponse }!!
             .checklistItem
@@ -351,7 +351,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructRegionSearchParameter(): String {
-        val regionChecklistResponse = checklistResponseMap.getValue(1).responses.first()
+        val regionChecklistResponse = checklistResponseMap.getValue(regionQuestionIndex).responses.first()
         val regionValue = regionList
             .find { item -> item.index == regionChecklistResponse }!!
             .country
@@ -360,7 +360,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructReleaseDecadeSearchParameters(): String {
-        val checklistResponse = checklistResponseMap.getValue(2).responses.first()
+        val checklistResponse = checklistResponseMap.getValue(decadeQuestionIndex).responses.first()
         val timeBoundValue = decadeList.find { item -> item.index == checklistResponse }
 
         if (timeBoundValue != null) {
@@ -379,7 +379,7 @@ class RecommendViewModel(val csvRepository: CsvRepositoryImpl): ViewModel() {
     }
 
     fun constructRuntimeSearchParameters(): String {
-        val checklistResponse = checklistResponseMap.getValue(decadeQuestionIndex).responses.first()
+        val checklistResponse = checklistResponseMap.getValue(runtimeQuestionIndex).responses.first()
         val timeBoundValue = runtimeList.find { item -> item.index == checklistResponse }
 
         if (timeBoundValue != null) {

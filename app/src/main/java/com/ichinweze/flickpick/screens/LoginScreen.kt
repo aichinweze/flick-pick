@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.ichinweze.flickpick.BuildConfig
 import com.ichinweze.flickpick.R
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_CHECK_DONE
 import com.ichinweze.flickpick.data.ViewModelData.SCREEN_LOGIN_SUCCESS
@@ -39,7 +40,7 @@ fun LoginScreen(
 ) {
     val screenState = loginViewModel.screenState.collectAsState()
 
-    val webClientId = stringResource(R.string.web_client_id)
+    val webClientId = BuildConfig.WEB_CLIENT_ID
 
     Surface {
         Column(
@@ -85,9 +86,11 @@ fun LoginScreen(
         }
     }
 
-    if (screenState.value == SCREEN_LOGIN_CHECK_DONE) {
-        Toast.makeText(context, "Sign In Success!", Toast.LENGTH_SHORT).show()
-        loginViewModel.updateScreenState(SCREEN_LOGIN_SUCCESS)
-        navController.navigate(DASHBOARD_SCREEN)
+    LaunchedEffect(screenState.value) {
+        if (screenState.value == SCREEN_LOGIN_CHECK_DONE) {
+            Toast.makeText(context, "Sign In Success!", Toast.LENGTH_SHORT).show()
+            loginViewModel.updateScreenState(SCREEN_LOGIN_SUCCESS)
+            navController.navigate(DASHBOARD_SCREEN)
+        }
     }
 }
