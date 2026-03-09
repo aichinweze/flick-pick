@@ -20,6 +20,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "TMDB_AUTH_TOKEN",
+            "\"${findProperty("TMDB_AUTH_TOKEN") ?: ""}\""
+        )
+
+        buildConfigField(
+            "String",
+            "WEB_CLIENT_ID",
+            "\"${findProperty("WEB_CLIENT_ID") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -40,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     sourceSets {

@@ -1,5 +1,7 @@
 package com.ichinweze.flickpick.data
 
+import com.ichinweze.flickpick.BuildConfig
+
 object ViewModelData {
 
     const val SCREEN_UNINITIALISED = "screen_uninitialised"
@@ -42,7 +44,7 @@ object ViewModelData {
     const val BASE_URL = "https://api.themoviedb.org/3/"
     const val IMAGE_URL = "https://image.tmdb.org/t/p/w300"
 
-    const val AUTH_TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5MDBmZGZlNGY2OWY3MWY5YzFkNzJiNTAwZDBmMDE3OSIsIm5iZiI6MTc1OTU5OTE0OC4yNjIsInN1YiI6IjY4ZTE1YTJjYTIyNjYyN2FjZjI1YWIzZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ijkX6Eg1pTo-lZUChSjigXDTbl7ei33bUNtzqu6mFOA"
+    const val AUTH_TOKEN = "Bearer ${BuildConfig.TMDB_AUTH_TOKEN}"
 
     const val ACCOUNT_DETAILS_COLLECTION = "account_details"
     const val BASELINE_QUESTIONS_COLLECTION = "baseline_questions"
