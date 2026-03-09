@@ -52,6 +52,8 @@ class AccountViewModel(): ViewModel() {
     private val _age: MutableStateFlow<String> = MutableStateFlow(UNINITIALISED_AGE)
     val age = _age.asStateFlow()
 
+    private val _uid: MutableStateFlow<String> = MutableStateFlow("")
+
     private val TAG: String = "AccountViewModel"
 
     fun initialiseScreen() {
@@ -61,13 +63,12 @@ class AccountViewModel(): ViewModel() {
             currentUser?.let {
                 setAccountName(it.displayName.toString())
                 setAccountEmail(it.email.toString())
+                setAccountUid(it.uid.toString())
             }
 
             getUserDetailsFromFirestore()
 
             getBaselineQuestionsFromFirestore()
-
-            _screenState.update { currentState -> SCREEN_INITIALISED }
         }
     }
 
@@ -87,8 +88,12 @@ class AccountViewModel(): ViewModel() {
         _email.update { current -> newEmail }
     }
 
+    fun setAccountUid(uid: String) {
+        _uid.update { current -> uid }
+    }
+
     fun getUserDetailsFromFirestore() {
-        val docRef = firestoreDb.collection(ACCOUNT_DETAILS_COLLECTION).document(_email.value)
+        val docRef = firestoreDb.collection(ACCOUNT_DETAILS_COLLECTION).document(_uid.value)
 
         docRef.get()
             .addOnSuccessListener { documentSnapshot ->
@@ -118,7 +123,6 @@ class AccountViewModel(): ViewModel() {
         _previousUserDetails.update { current -> detailsToTrack }
     }
 
-    // TODO: Add security layer
     fun updateUserInformationInFirestore() {
         val originalName = _previousUserDetails.value.getValue("name").trim()
         val originalAge = _previousUserDetails.value.getValue("age").trim()
@@ -132,11 +136,11 @@ class AccountViewModel(): ViewModel() {
 
             firestoreDb
                 .collection(ACCOUNT_DETAILS_COLLECTION)
-                .document(_email.value)
+                .document(_uid.value)
                 .set(updatedUser)
                 .addOnSuccessListener {
                     // Handle success (e.g., show a Toast message)
-                    Log.d(TAG, "DocumentSnapshot successfully written with ID: ${_email.value}")
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: ${_uid.value}")
                 }
                 .addOnFailureListener { e ->
                     // Handle failure (e.g., log the error)
@@ -161,7 +165,7 @@ class AccountViewModel(): ViewModel() {
     }
 
     fun getBaselineQuestionsFromFirestore() {
-        val collectionPath = "$BASELINE_QUESTIONS_COLLECTION/${_email.value}/$QUESTIONS_COLLECTION"
+        val collectionPath = "$BASELINE_QUESTIONS_COLLECTION/${_uid.value}/$QUESTIONS_COLLECTION"
         val collectionRef = firestoreDb.collection(collectionPath)
 
         collectionRef
@@ -186,6 +190,7 @@ class AccountViewModel(): ViewModel() {
         _name.update { state -> UNINITIALISED_NAME }
         _age.update { state -> UNINITIALISED_AGE }
         _email.update { state -> "" }
+        _uid.update { state -> "" }
     }
 
     fun signOutUser(context: Context) {

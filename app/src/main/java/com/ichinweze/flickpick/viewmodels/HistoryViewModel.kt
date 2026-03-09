@@ -34,6 +34,8 @@ class HistoryViewModel(): ViewModel() {
 
     private val _email: MutableStateFlow<String> = MutableStateFlow("")
 
+    private val _uid: MutableStateFlow<String> = MutableStateFlow("")
+
     private val _movieUnderReviewIdx: MutableStateFlow<Int> = MutableStateFlow(-1)
 
     private var _movieUnderReview: SelectedMovieDetails? = null
@@ -51,7 +53,10 @@ class HistoryViewModel(): ViewModel() {
 
             val currentUser = auth.currentUser
 
-            currentUser?.let { setAccountEmail(it.email.toString()) }
+            currentUser?.let {
+                setAccountEmail(it.email.toString())
+                setAccountUid(it.uid)
+            }
 
             getPreviouslySelectedMovies()
         }
@@ -61,8 +66,12 @@ class HistoryViewModel(): ViewModel() {
         _email.update { current -> newEmail }
     }
 
+    fun setAccountUid(uid: String) {
+        _uid.update { current -> uid }
+    }
+
     fun getPreviouslySelectedMovies() {
-        val collectionPath = "$WATCH_HISTORY_COLLECTION/${_email.value}/$MOVIE_DETAILS_COLLECTION"
+        val collectionPath = "$WATCH_HISTORY_COLLECTION/${_uid.value}/$MOVIE_DETAILS_COLLECTION"
         val collectionRef = firestoreDb.collection(collectionPath)
 
         collectionRef.count()
@@ -138,12 +147,12 @@ class HistoryViewModel(): ViewModel() {
             val updatedMovieEntry = _movieUnderReview!!.copy(userRating = _sliderPosition.value.toInt())
             val movie = _movieUnderReview!!.movieTitle ?: ""
 
-            val documentPath = "$WATCH_HISTORY_COLLECTION/${_email.value}/$MOVIE_DETAILS_COLLECTION/$movie"
+            val documentPath = "$WATCH_HISTORY_COLLECTION/${_uid.value}/$MOVIE_DETAILS_COLLECTION/$movie"
             val docUpdateRef = firestoreDb.document(documentPath)
 
             docUpdateRef.set(updatedMovieEntry)
                 .addOnSuccessListener {
-                    Log.d(TAG, "DocumentSnapshot successfully written with ID: ${updatedMovieEntry.movieTitle} to $WATCH_HISTORY_COLLECTION/${_email.value}/movie_details")
+                    Log.d(TAG, "DocumentSnapshot successfully written with ID: ${updatedMovieEntry.movieTitle} to $WATCH_HISTORY_COLLECTION/${_uid.value}/movie_details")
                 }
                 .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
 
@@ -154,21 +163,23 @@ class HistoryViewModel(): ViewModel() {
         _screenState.update { state -> SCREEN_REVIEW_SELECTION }
     }
 
-    // TODO: Add credential check
     fun deleteMovieFromHistory() {
-        val movie = _movieUnderReview!!.movieTitle ?: ""
+        if (auth.currentUser == null) return
+        else {
+            val movie = _movieUnderReview!!.movieTitle ?: ""
 
-        val documentPath = "$WATCH_HISTORY_COLLECTION/${_email.value}/$MOVIE_DETAILS_COLLECTION/$movie"
-        val docDeleteRef = firestoreDb.document(documentPath)
+            val documentPath = "$WATCH_HISTORY_COLLECTION/${_uid.value}/$MOVIE_DETAILS_COLLECTION/$movie"
+            val docDeleteRef = firestoreDb.document(documentPath)
 
-        docDeleteRef
-            .delete()
-            .addOnSuccessListener {
-                Log.d(TAG, "DocumentSnapshot successfully deleted from path: $documentPath!")
-            }
-            .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
+            docDeleteRef
+                .delete()
+                .addOnSuccessListener {
+                    Log.d(TAG, "DocumentSnapshot successfully deleted from path: $documentPath!")
+                }
+                .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
 
-        getPreviouslySelectedMovies()
+            getPreviouslySelectedMovies()
+        }
     }
 
     fun resetScreen() {
