@@ -170,6 +170,4 @@ app/src/main/java/com/ichinweze/flickpick/
 ## 👤 Author
 
 **aichinweze**  
-[GitHub](https://github.com/aichinweze)
-
-[LinkedIn](https://www.linkedin.com/in/ifeanyi-chinweze-673b0916b/)
+[GitHub](https://github.com/aichinweze) // [LinkedIn](https://www.linkedin.com/in/ifeanyi-chinweze-673b0916b/)
