@@ -17,6 +17,14 @@ the full stack of a modern mobile application.
 
 ---
 
+## 📸 Screenshots
+
+| Dashboard | Watch History | Account |
+|:---------:|:-------------:|:-------:|
+| ![Dashboard](screenshots/screenshot-dashboard.jpg) | ![Watch History](screenshots/screenshot-history.jpg) | ![Account](screenshots/screenshot-account.jpg) |
+
+---
+
 ## ✨ Features
 
 - **Google Sign-In** — Secure, frictionless authentication via Firebase Auth and the Android Credential Manager API
