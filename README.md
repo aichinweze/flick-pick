@@ -1,25 +1,181 @@
-# Flick Pick: Movie Recommender App
-Flick-Pick is an intelligent movie recommender app built with Android Studio. It helps users decide what to watch by asking a few quick questions, then suggesting movies that match their preferences.
+# 🎬 Flick Pick — Android Movie Recommender App
 
-## Features
-* User Authentication - Secure login and personalised user sessions
-* Smart Movie Recommendations - Dynamically recommends movies based on user inputs and preferences.
-* User History Tracking – Keeps a record of previously selected or watched movies for better suggestions over time.
-* API Integration – Fetches real-time movie data from an external movie database API (e.g., TMDB or OMDb).
-* Modern UI – Built using Android Studio with intuitive layouts and a clean, engaging design.
+> A native Android application built in **Kotlin** with **Jetpack Compose**, demonstrating end-to-end mobile development across UI, architecture, authentication, cloud persistence, and third-party API integration.
 
-## Tech Stack
-|Category |Technology  |
-|:-------:|:----------:|
-|Language |Kotlin      |
-|Framework|Android SDK |
-|API      |TMDB Movie Database|
-|Storage  |SQLite (Room Database)|
-|Build Tool|Gradle|
+---
 
-## How it Works
-1. User Login: The user logs in or creates an account.
-2. Preference Prompts: The app asks the user a series of questions (e.g., genre, release year, rating).
-3. API Query: These responses form parameters for an API query that fetches matching movies.
-4. Recommendation Display: The app displays a list of recommended movies with details such as title, synopsis, and poster.
-5. User History: Selected movies are saved to the user’s profile for future reference and smarter recommendations.
+## Overview
+
+Flick Pick helps users pick a movie to watch by asking a short series of preference questions and using 
+those answers to query the **TMDB (The Movie Database) API** in real time. Results are filtered by 
+genre, region, release decade, runtime, and quality rating. Users can browse recommendations, 
+save selections to a personal watch history, and rate movies they've seen — all backed by a cloud-synced 
+user account.
+
+This project was built as a portfolio piece to demonstrate practical Android development skills across 
+the full stack of a modern mobile application.
+
+---
+
+## 📸 Screenshots
+
+| Dashboard | Watch History | Account |
+|:---------:|:-------------:|:-------:|
+| ![Dashboard](screenshots/screenshot-dashboard.jpg) | ![Watch History](screenshots/screenshot-history.jpg) | ![Account](screenshots/screenshot-account.jpg) |
+
+---
+
+## ✨ Features
+
+- **Google Sign-In** — Secure, frictionless authentication via Firebase Auth and the Android Credential Manager API
+- **Dynamic Movie Recommendations** — Questionnaire responses are composed into parameterised TMDB API queries at runtime
+- **Personal Watch History** — Selected movies are persisted to Firestore and displayed across sessions
+- **User Rating System** — Users can rate their watched movies and ratings are synced to their cloud account
+- **Account Management** — Users can view and edit their profile details and saved baseline preferences
+- **Fully Themed UI** — Consistent Material 3 design with a custom colour scheme applied app-wide
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|:--|:--|
+| Language | Kotlin |
+| UI Framework | Jetpack Compose + Material 3 |
+| Architecture | MVVM (ViewModel + StateFlow) |
+| Authentication | Firebase Authentication (Google Sign-In) |
+| Cloud Database | Firebase Firestore |
+| HTTP Client | Retrofit 2 + Gson |
+| Navigation | Jetpack Navigation Compose |
+| Build Tool | Gradle (Kotlin DSL) |
+| Testing | JUnit 4, Mockito-Kotlin, Kotlinx Coroutines Test |
+
+---
+
+## 🏗️ Architecture
+
+The app follows the **MVVM (Model-View-ViewModel)** pattern throughout:
+
+- **ViewModels** own all business logic and state, exposed as `StateFlow` streams
+- **Composable screens** observe state reactively and are fully decoupled from data concerns
+- **Repository layer** (`CsvRepositoryImpl`) abstracts all local asset reads behind a coroutine-safe interface
+- **Firestore** is accessed directly from ViewModels, with user data scoped to Firebase Auth UIDs (not emails) for security
+
+Navigation is handled by **Jetpack Navigation Compose**, with the start destination determined at launch based on the current Firebase Auth session.
+
+Credentials are managed securely via `gradle.properties` and injected at build time through `BuildConfig`, ensuring no secrets are committed to source control.
+
+---
+
+## 📱 App Flow
+
+```
+Login (Google Sign-In)
+    │
+    └─▶ Dashboard
+            ├─▶ Baseline Questionnaire  →  Saves genre & region preferences to Firestore
+            └─▶ Flick Pick              →  5-question flow → TMDB API query → Results list
+                                                │
+                                                └─▶ Movie Detail View  →  Save to Watch History
+                                                
+        Account Screen  →  View/edit profile & saved baseline preferences
+        History Screen  →  Browse saved movies, add/edit personal ratings
+```
+
+---
+
+## 🔐 Security Considerations
+
+- Firestore documents are keyed by **Firebase Auth UID**, not by email, ensuring data cannot be accessed or guessed by other users
+- Firestore Security Rules enforce that each authenticated user can only read and write their own documents
+- Google Sign-In uses a cryptographically random **nonce** on every request to prevent replay attacks
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Android Studio Ladybug or later
+- A Firebase project with Authentication (Google Sign-In) and Firestore enabled
+- A TMDB API account with a bearer token
+
+### Setup
+
+1. Clone the repository
+2. Copy `gradle.properties.example` to `gradle.properties` and fill in your credentials:
+   ```properties
+   TMDB_AUTH_TOKEN=your_tmdb_bearer_token
+   WEB_CLIENT_ID=your_google_oauth_web_client_id
+   ```
+3. Download your `google-services.json` from the Firebase console and place it at `app/google-services.json`
+4. Add the following Firestore Security Rules in the Firebase console:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /account_details/{userId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+       match /baseline_questions/{userId}/{document=**} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+       match /watch_history/{userId}/{document=**} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+     }
+   }
+   ```
+5. Build and run on a device or emulator running Android 8.0 (API 26) or above
+
+---
+
+## 🧪 Testing
+
+The project includes both **unit tests** and **instrumented tests**:
+
+- **`RepositoryUtilsTest`** — Unit tests for all CSV parsing functions (question data, genre data, region data, time bounds, movie quality)
+- **`CsvRepositoryTest`** — Instrumented tests verifying correct asset reads from the Android asset manager
+- **`ApiTest`** — Integration tests for the TMDB API service, validating live responses for movie discovery and genre endpoints
+
+Run unit tests with:
+```bash
+./gradlew test
+```
+
+Run instrumented tests with:
+```bash
+./gradlew connectedAndroidTest
+```
+
+---
+
+## 📂 Project Structure
+
+```
+app/src/main/java/com/ichinweze/flickpick/
+├── data/                   # Data classes, API models, Firestore models, constants
+├── interfaces/             # Repository and API service interfaces
+├── repositiories/          # CSV asset repository implementation
+├── screens/                # Composable UI screens
+│   └── utils/              # Shared composables and screen route constants
+├── ui/theme/               # Material 3 theme, colour scheme, typography
+└── viewmodels/             # MVVM ViewModels for each screen
+    └── utils/              # Shared ViewModel utility functions
+```
+
+---
+
+## 🔭 Future Work
+
+- **Baseline Questionnaire** — Users can provide general movie preferences for genre and region. The next step is to use that information to bias the movie database search for more relevant results.
+- **Expand Regions and Genres** — A relatively short selection of movies and genres are currently available in questionnaires. Future versions would involve expansion in both areas.
+- **Expand Sign-In Options** — This version of the application only supports Google Sign-In but in future, this should be expanded to include email and other methods.  
+- **UI Refinement** — As always, the user experience can be improved. General improvements to the look and feel of the app can be made going forward.
+
+---
+
+## 👤 Author
+
+**aichinweze**  
+[GitHub](https://github.com/aichinweze) // [LinkedIn](https://www.linkedin.com/in/ifeanyi-chinweze-673b0916b/)
