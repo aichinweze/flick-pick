@@ -6,7 +6,7 @@
 
 ## Overview
 
-Flick Pick helps users pick a moview to watch by asking a short series of preference questions and using 
+Flick Pick helps users pick a movie to watch by asking a short series of preference questions and using 
 those answers to query the **TMDB (The Movie Database) API** in real time. Results are filtered by 
 genre, region, release decade, runtime, and quality rating. Users can browse recommendations, 
 save selections to a personal watch history, and rate movies they've seen — all backed by a cloud-synced 
@@ -22,7 +22,7 @@ the full stack of a modern mobile application.
 - **Google Sign-In** — Secure, frictionless authentication via Firebase Auth and the Android Credential Manager API
 - **Dynamic Movie Recommendations** — Questionnaire responses are composed into parameterised TMDB API queries at runtime
 - **Personal Watch History** — Selected movies are persisted to Firestore and displayed across sessions
-- **User Rating System** — Users can rate their watched movies via an in-app slider, with ratings synced to the cloud
+- **User Rating System** — Users can rate their watched movies and ratings are synced to their cloud account
 - **Account Management** — Users can view and edit their profile details and saved baseline preferences
 - **Fully Themed UI** — Consistent Material 3 design with a custom colour scheme applied app-wide
 
@@ -80,7 +80,6 @@ Login (Google Sign-In)
 
 - Firestore documents are keyed by **Firebase Auth UID**, not by email, ensuring data cannot be accessed or guessed by other users
 - Firestore Security Rules enforce that each authenticated user can only read and write their own documents
-- The TMDB API bearer token and Google OAuth client ID are stored in `gradle.properties` (gitignored) and injected via `BuildConfig` — neither appears in source code
 - Google Sign-In uses a cryptographically random **nonce** on every request to prevent replay attacks
 
 ---
@@ -172,8 +171,5 @@ app/src/main/java/com/ichinweze/flickpick/
 
 **aichinweze**  
 [GitHub](https://github.com/aichinweze)
+
 [LinkedIn](https://www.linkedin.com/in/ifeanyi-chinweze-673b0916b/)
-
----
-
-*Built as a portfolio project to demonstrate native Android development in Kotlin.*
